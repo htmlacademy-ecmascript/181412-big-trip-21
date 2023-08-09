@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Мария Богатырева](https://up.htmlacademy.ru/ecmascript/21/user/181412).
-* Наставник: `Неизвестно`.
+* Наставник: [Антон Попов](https://htmlacademy.ru/profile/joker).
 
 ---
 
