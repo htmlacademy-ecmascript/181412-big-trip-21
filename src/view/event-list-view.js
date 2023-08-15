@@ -1,12 +1,12 @@
 import {createElement} from '../render.js';
 
-function createTripInfoTemplate() {
-  return '<section class="trip-main__trip-info  trip-info"></section>';
+function createEventListTemplate() {
+  return '<ul class="trip-events__list"></ul>';
 }
 
-export default class TripInfoView {
+export default class EventListView {
   getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
-    return createTripInfoTemplate();
+    return createEventListTemplate();
   }
 
   getElement() { // Создаем DOM-элемент
