@@ -165,7 +165,7 @@ function createEditFormTemplate() {
             </li>`;
 }
 
-export default class AddFormView {
+export default class EditPointFormView {
   getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
     return createEditFormTemplate();
   }

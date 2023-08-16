@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
 
-function createEventTemplate() {
+function createPointTemplate() {
   return `<li class="trip-events__item">
               <div class="event">
                 <time class="event__date" datetime="2019-03-18">MAR 18</time>
@@ -42,7 +42,7 @@ function createEventTemplate() {
 
 export default class EventListView {
   getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
-    return createEventTemplate();
+    return createPointTemplate();
   }
 
   getElement() { // Создаем DOM-элемент
