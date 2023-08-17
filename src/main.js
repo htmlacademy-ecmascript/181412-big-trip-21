@@ -4,7 +4,7 @@ import TripInfoCostView from './view/trip-info-cost-view.js'; // cost
 import FilterView from './view/filter-view.js';
 import SortView from './view/sort-view.js';
 import PointsPresenter from './presenter/points-presenter.js';
-import PointsModel from './model/points-model.js'
+import PointsModel from './model/points-model.js';
 import {render, RenderPosition} from './render.js';
 
 const siteHeaderElement = document.querySelector('.page-header');

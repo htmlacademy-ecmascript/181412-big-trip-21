@@ -1,23 +1,34 @@
 import {createElement} from '../render.js';
+import {humanizePointDueDate, calculateDiffTime} from '../utils.js';
+import {DATE_FORMAT, TIME_FORMAT, FULL_DATE_FORMAT} from '../const.js';
 
-function createPointTemplate() {
+function createPointTemplate(point) {
+  const {type, basePrice, dateFrom, dateTo} = point;
+
+  const dateStart = humanizePointDueDate(dateFrom, DATE_FORMAT); // например, SEP 11
+  const dateFullStart = humanizePointDueDate(dateFrom, FULL_DATE_FORMAT); // например, 2019-03-18
+  const dateFullEnd = humanizePointDueDate(dateTo, FULL_DATE_FORMAT); // например, 2019-03-18
+  const timeStart = humanizePointDueDate(dateFrom, TIME_FORMAT); // например, 10:30
+  const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 10:30
+  const pointDuration = calculateDiffTime(dateFrom, dateTo);
+
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="2019-03-18">MAR 18</time>
+                <time class="event__date" datetime="${dateFullStart}">${dateStart}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+                  <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">Taxi Amsterdam</h3>
+                <h3 class="event__title">${type} Amsterdam</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+                    <time class="event__start-time" datetime="${dateFullStart}T${timeStart}">${timeStart}</time>
                     —
-                    <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+                    <time class="event__end-time" datetime="${dateFullEnd}T${timeEnd}">${timeEnd}</time>
                   </p>
-                  <p class="event__duration">30M</p>
+                  <p class="event__duration">${pointDuration}</p>
                 </div>
                 <p class="event__price">
-                  €&nbsp;<span class="event__price-value">20</span>
+                  €&nbsp;<span class="event__price-value">${basePrice}</span>
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">
@@ -41,8 +52,12 @@ function createPointTemplate() {
 }
 
 export default class EventListView {
+  constructor({point}) { // При создании экземляра класса мы должны передать объект с данными (создаем в презентере)
+    this.point = point;
+  }
+
   getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
-    return createPointTemplate();
+    return createPointTemplate(this.point); // Для отрисовки используем пришедшие данные объекта
   }
 
   getElement() { // Создаем DOM-элемент
