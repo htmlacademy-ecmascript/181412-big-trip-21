@@ -5,7 +5,6 @@ import {render} from '../render.js';
 
 export default class PointsPresenter {
   pointListComponent = new PointListView();
-  // EditPointFormComponent = new EditPointFormView() СПРОСИТЬ У АНТОНА!!!!
 
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
@@ -17,12 +16,13 @@ export default class PointsPresenter {
 
   init() {
     this.points = [...this.pointsModel.getPoints()]; // Это наш массив точек, которые мы отрисовываем
+    this.blankPoint = this.pointsModel.getBlankPoint(); // Это объект пустой точки (для формы создания)
 
     render(this.pointListComponent, this.presenterContainerElement); // вставили обертку ul
 
     render(new EditPointFormView({point: this.points[0]}), this.pointListComponent.getElement()); // вставили форму редактирования
 
-    for (let i = 0; i < this.points.length; i++) {
+    for (let i = 1; i < this.points.length; i++) {
       render(new PointView({point: this.points[i]}), this.pointListComponent.getElement());
     }
   }

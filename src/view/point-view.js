@@ -3,7 +3,7 @@ import {humanizePointDueDate, calculateDiffTime} from '../utils.js';
 import {DATE_FORMAT, TIME_FORMAT, FULL_DATE_FORMAT} from '../const.js';
 
 function createPointTemplate(point) {
-  const {type, basePrice, dateFrom, dateTo} = point;
+  const {type, basePrice, dateFrom, dateTo, isFavorite} = point;
 
   const dateStart = humanizePointDueDate(dateFrom, DATE_FORMAT); // например, SEP 11
   const dateFullStart = humanizePointDueDate(dateFrom, FULL_DATE_FORMAT); // например, 2019-03-18
@@ -11,6 +11,7 @@ function createPointTemplate(point) {
   const timeStart = humanizePointDueDate(dateFrom, TIME_FORMAT); // например, 10:30
   const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 10:30
   const pointDuration = calculateDiffTime(dateFrom, dateTo);
+  const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
   return `<li class="trip-events__item">
               <div class="event">
@@ -38,7 +39,7 @@ function createPointTemplate(point) {
                     <span class="event__offer-price">20</span>
                   </li>
                 </ul>
-                <button class="event__favorite-btn event__favorite-btn--active" type="button">
+                <button class="event__favorite-btn ${favoriteClassName}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
                   <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
                     <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"></path>

@@ -2,7 +2,6 @@ import {getRandomArrayElement} from '../utils.js';
 
 const mockPoints = [
   {
-    id: 0,
     type: 'taxi',
     offers: [1, 2],
     basePrice: 500,
@@ -12,7 +11,6 @@ const mockPoints = [
     destination: 3
   },
   {
-    id: 1,
     type: 'bus',
     offers: [1, 3],
     basePrice: 40,
@@ -22,7 +20,6 @@ const mockPoints = [
     destination: 2
   },
   {
-    id: 2,
     type: 'train',
     offers: [1, 2],
     basePrice: 200,
@@ -32,7 +29,6 @@ const mockPoints = [
     destination: 3
   },
   {
-    id: 3,
     type: 'ship',
     offers: [1, 2],
     basePrice: 80,
@@ -42,7 +38,6 @@ const mockPoints = [
     destination: 2
   },
   {
-    id: 4,
     type: 'drive',
     offers: [1, 2],
     basePrice: 90,
@@ -52,7 +47,6 @@ const mockPoints = [
     destination: 1
   },
   {
-    id: 5,
     type: 'flight',
     offers: [1, 2, 3],
     basePrice: 150,
@@ -62,7 +56,6 @@ const mockPoints = [
     destination: 2
   },
   {
-    id: 6,
     type: 'check-in',
     offers: [1, 2],
     basePrice: 150,
@@ -72,7 +65,6 @@ const mockPoints = [
     destination: 1
   },
   {
-    id: 7,
     type: 'sightseeing',
     offers: [1, 2],
     basePrice: 100,
@@ -82,7 +74,6 @@ const mockPoints = [
     destination: 2
   },
   {
-    id: 8,
     type: 'restaurant',
     offers: [1, 2],
     basePrice: 100,
@@ -93,9 +84,19 @@ const mockPoints = [
   }
 ];
 
+const BLANK_POINT = { // Это объект с описанием точки по умолчанию. ПУСТАЯ ТОЧКА
+  type: '',
+  offers: [1, 3],
+  basePrice: '',
+  dateFrom: null,
+  dateTo: null,
+  isFavorite: false,
+  destination: 2
+}
+
 // Функция для получения случайной точки из массива точек
 function getRandomTask() {
   return getRandomArrayElement(mockPoints);
 }
 
-export {getRandomTask};
+export {getRandomTask, BLANK_POINT};

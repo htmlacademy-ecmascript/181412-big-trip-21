@@ -2,6 +2,19 @@ import {createElement} from '../render.js';
 import {humanizePointDueDate} from '../utils.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
 
+const BLANK_POINT = { // Это объект с описание точки по умолчанию. ПУСТАЯ ТОЧКА
+    type: '',
+    offers: [1, 3],
+    basePrice: '',
+    dateFrom: null,
+    dateTo: '2023-07-12T05:00:13.375Z',
+    isFavorite: false,
+    destination: 2
+}
+
+// Функция для отрисовки картинки ТИПА
+//function createImgTypeTemplate(type) {}
+
 function createEditFormTemplate(point) {
   const {type, basePrice, dateFrom, dateTo} = point;
 
@@ -9,6 +22,9 @@ function createEditFormTemplate(point) {
   const dateEnd = humanizePointDueDate(dateTo, FULL_DATE_EDIT_FORMAT); // например, 19/03/25
   const timeStart = humanizePointDueDate(dateFrom, TIME_FORMAT); // например, 10:30
   const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 12:30
+
+  console.log(dateFrom)
+  console.log(type)
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -175,7 +191,7 @@ function createEditFormTemplate(point) {
 }
 
 export default class EditPointFormView {
-  constructor({point}) { // При создании экземляра класса Формы мы должны передать объект с данными (создаем в презентере)
+  constructor({point = BLANK_POINT}) { // При создании экземляра класса Формы мы должны передать объект с данными (создаем в Презентере)
     this.point = point;
   }
 
