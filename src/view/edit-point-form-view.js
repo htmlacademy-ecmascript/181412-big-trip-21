@@ -3,28 +3,51 @@ import {humanizePointDueDate} from '../utils.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
 
 const BLANK_POINT = { // Это объект с описание точки по умолчанию. ПУСТАЯ ТОЧКА
-    type: '',
-    offers: [1, 3],
-    basePrice: '',
-    dateFrom: null,
-    dateTo: '2023-07-12T05:00:13.375Z',
-    isFavorite: false,
-    destination: 2
-}
+  type: 'flight',
+  offers: [1, 3],
+  basePrice: '',
+  dateFrom: null,
+  dateTo: null,
+  isFavorite: false,
+  destination: 2
+};
 
-// Функция для отрисовки картинки ТИПА
-//function createImgTypeTemplate(type) {}
-
-function createEditFormTemplate(point) {
-  const {type, basePrice, dateFrom, dateTo} = point;
+function createEditFormTemplate(point, destinationsList, OffersList) {
+  const {type, offers, basePrice, dateFrom, dateTo, destination} = point;
 
   const dateStart = humanizePointDueDate(dateFrom, FULL_DATE_EDIT_FORMAT); // например, 19/03/19
   const dateEnd = humanizePointDueDate(dateTo, FULL_DATE_EDIT_FORMAT); // например, 19/03/25
   const timeStart = humanizePointDueDate(dateFrom, TIME_FORMAT); // например, 10:30
   const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 12:30
 
-  console.log(dateFrom)
-  console.log(type)
+  // DESTINATIONS
+  // Получаем из массива объекта всех destinations только тот объект, что указан в точке
+  const pointDestinationObj = destinationsList.find((item) => item.id === destination);
+  const {name, description, pictures} = pointDestinationObj; // деструктуризируем его
+
+  // Для отрисовывания картинок
+  function createDestinationPicturesTemplate() {
+    return pictures.map((picture) =>
+      `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
+    ).join('');
+  }
+  const destinationPicturesTemplate = createDestinationPicturesTemplate();
+
+  // Для отрисовывания OFFERS
+  const typeOffersObj = OffersList.find((item) => item.type === type);
+
+  const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
+    const isChecked = offers.includes(offer.id) ? 'checked' : '';
+    return `<div class="event__offer-selector">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
+      <label class="event__offer-label" for="event-offer-${offer.id}">
+        <span class="event__offer-title">${offer.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offer.price}</span>
+      </label>
+    </div>`;
+  }).join('');
+  const typeOffersTemplate = createTypeOffersTemplate();
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -92,7 +115,7 @@ function createEditFormTemplate(point) {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Geneva" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       <option value="Amsterdam"></option>
                       <option value="Geneva"></option>
@@ -122,66 +145,18 @@ function createEditFormTemplate(point) {
                 <section class="event__details">
                   <section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
                     <div class="event__available-offers">
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked="">
-                        <label class="event__offer-label" for="event-offer-luggage-1">
-                          <span class="event__offer-title">Add luggage</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">30</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked="">
-                        <label class="event__offer-label" for="event-offer-comfort-1">
-                          <span class="event__offer-title">Switch to comfort class</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">100</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal">
-                        <label class="event__offer-label" for="event-offer-meal-1">
-                          <span class="event__offer-title">Add meal</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">15</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-                        <label class="event__offer-label" for="event-offer-seats-1">
-                          <span class="event__offer-title">Choose seats</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">5</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train">
-                        <label class="event__offer-label" for="event-offer-train-1">
-                          <span class="event__offer-title">Travel by train</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">40</span>
-                        </label>
-                      </div>
+                      ${typeOffersTemplate}
                     </div>
                   </section>
 
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.</p>
+                    <p class="event__destination-description">${description}</p>
 
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        <img class="event__photo" src="img/photos/1.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/2.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/3.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/4.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/5.jpg" alt="Event photo">
+                        ${destinationPicturesTemplate}
                       </div>
                     </div>
                   </section>
@@ -191,12 +166,16 @@ function createEditFormTemplate(point) {
 }
 
 export default class EditPointFormView {
-  constructor({point = BLANK_POINT}) { // При создании экземляра класса Формы мы должны передать объект с данными (создаем в Презентере)
-    this.point = point;
+  // При создании экземляра класса Формы мы должны передать объект с данными точки,
+  // а также массивы destinations и offers
+  constructor({point = BLANK_POINT, destinations, offers}) {
+    this.point = point; // Сохраняем пришедшие данные точки в свойство класса
+    this.destinations = destinations; // Сохраняем пришедшие данные destinations в свойство класса
+    this.offers = offers; // Сохраняем пришедшие данные offers в свойство класса
   }
 
-  getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
-    return createEditFormTemplate(this.point);
+  getTemplate() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
+    return createEditFormTemplate(this.point, this.destinations, this.offers);
   }
 
   getElement() { // Создаем DOM-элемент

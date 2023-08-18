@@ -16,14 +16,17 @@ export default class PointsPresenter {
 
   init() {
     this.points = [...this.pointsModel.getPoints()]; // Это наш массив точек, которые мы отрисовываем
-    this.blankPoint = this.pointsModel.getBlankPoint(); // Это объект пустой точки (для формы создания)
+    const destinations = [...this.pointsModel.getDestinations()];
+    const offers = [...this.pointsModel.getOffers()];
 
     render(this.pointListComponent, this.presenterContainerElement); // вставили обертку ul
 
-    render(new EditPointFormView({point: this.points[0]}), this.pointListComponent.getElement()); // вставили форму редактирования
+    // Вставляем ФОРМУ СОЗДАНИЯ/РЕДАКТИРОВАНИЯ ТОЧКИ. Передаем объект с точкой, а также _массивы destinations и offers_
+    render(new EditPointFormView({point: this.points[0], destinations, offers}), this.pointListComponent.getElement());
+    //console.log('Точка для формы создания', this.points[0])
 
     for (let i = 1; i < this.points.length; i++) {
-      render(new PointView({point: this.points[i]}), this.pointListComponent.getElement());
+      render(new PointView({point: this.points[i],destinations, offers}), this.pointListComponent.getElement());
     }
   }
 }

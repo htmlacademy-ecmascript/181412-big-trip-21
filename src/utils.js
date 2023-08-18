@@ -7,6 +7,12 @@ function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+// Функция для получения случайного числа
+function getRandomNumber(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+
 // Функция для преобразования даты в нужный формат
 function humanizePointDueDate(dueDate, dateFormat) {
   return dueDate ? dayjs(dueDate).format(dateFormat) : '';
@@ -30,4 +36,4 @@ function calculateDiffTime(dateStart, dateEnd) {
   }
 }
 
-export {getRandomArrayElement, humanizePointDueDate, calculateDiffTime};
+export {getRandomArrayElement, getRandomNumber, humanizePointDueDate, calculateDiffTime};

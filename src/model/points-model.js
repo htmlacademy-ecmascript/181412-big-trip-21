@@ -1,18 +1,23 @@
-import {getRandomTask, BLANK_POINT} from '../mock/points.js';
+import {getRandomTask, mockDestinations, mockOffers} from '../mock/points.js';
 
-const POINT_COUNT = 4;
+const POINT_COUNT = 6;
 
 export default class PointsModel {
   // Сформируем массив указанной длины из случайных точек моков
   points = Array.from({length: POINT_COUNT}, getRandomTask);
-  blankPoint = BLANK_POINT;
+  destinations = mockDestinations;
+  offers = mockOffers;
 
   // метод для получения сформированного массива точек
   getPoints() {
     return this.points;
   }
 
-  getBlankPoint() {
-    return this.blankPoint;
+  getDestinations() {
+    return this.destinations;
+  }
+
+  getOffers() {
+    return this.offers;
   }
 }
