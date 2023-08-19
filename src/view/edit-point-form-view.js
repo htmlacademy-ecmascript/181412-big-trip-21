@@ -2,14 +2,14 @@ import {createElement} from '../render.js';
 import {humanizePointDueDate} from '../utils.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
 
-const BLANK_POINT = { // Это объект с описание точки по умолчанию. ПУСТАЯ ТОЧКА
+const BLANK_POINT = { // Это объект с описанием точки по умолчанию. ПУСТАЯ ТОЧКА/ФОРМА РЕДАКТИРОВАНИЯ
   type: 'flight',
-  offers: [1, 3],
-  basePrice: '',
+  offers: [],
+  basePrice: 0,
   dateFrom: null,
   dateTo: null,
   isFavorite: false,
-  destination: 2
+  destination: ''
 };
 
 function createEditFormTemplate(point, destinationsList, OffersList) {
@@ -21,21 +21,21 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
   const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 12:30
 
   // DESTINATIONS
-  // Получаем из массива объекта всех destinations только тот объект, что указан в точке
+  // Получаем из массива объектов ВСЕХ destinations ТОЛЬКО ТОТ объект, что указан в точке
   const pointDestinationObj = destinationsList.find((item) => item.id === destination);
-  const {name, description, pictures} = pointDestinationObj; // деструктуризируем его
-
   // Для отрисовывания картинок
   function createDestinationPicturesTemplate() {
-    return pictures.map((picture) =>
-      `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
-    ).join('');
+    if(pointDestinationObj) { // Если destination есть, то отрисовываем картинки
+      return pointDestinationObj.pictures.map((picture) =>
+        `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
+      ).join('');
+    }
   }
   const destinationPicturesTemplate = createDestinationPicturesTemplate();
 
-  // Для отрисовывания OFFERS
-  const typeOffersObj = OffersList.find((item) => item.type === type);
 
+  // OFFERS
+  const typeOffersObj = OffersList.find((item) => item.type === type);
   const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
     return `<div class="event__offer-selector">
@@ -115,7 +115,7 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointDestinationObj ? pointDestinationObj.name : ""}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       <option value="Amsterdam"></option>
                       <option value="Geneva"></option>
@@ -150,16 +150,17 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                     </div>
                   </section>
 
-                  <section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${description}</p>
-
-                    <div class="event__photos-container">
-                      <div class="event__photos-tape">
-                        ${destinationPicturesTemplate}
-                      </div>
+                ${ pointDestinationObj ?
+                `<section class="event__section  event__section--destination">
+                  <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                  <p class="event__destination-description">${pointDestinationObj.description}</p>
+                  <div class="event__photos-container">
+                    <div class="event__photos-tape">
+                      ${destinationPicturesTemplate}
                     </div>
-                  </section>
+                  </div>
+                </section>`
+                : ``}
                 </section>
               </form>
             </li>`;
