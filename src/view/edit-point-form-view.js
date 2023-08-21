@@ -21,9 +21,9 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
   const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 12:30
 
   // DESTINATIONS
-  // Получаем из массива объектов ВСЕХ destinations ТОЛЬКО ТОТ объект, что указан в точке
+  // Сначала получаем из массива объектов ВСЕХ destinations ТОЛЬКО ТОТ объект, что указан в точке
   const pointDestinationObj = destinationsList.find((item) => item.id === destination);
-  // Для отрисовывания картинок
+  // Функиция для отрисовывания картинок
   function createDestinationPicturesTemplate() {
     if(pointDestinationObj) { // Если destination есть, то отрисовываем картинки
       return pointDestinationObj.pictures.map((picture) =>
@@ -32,10 +32,26 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
     }
   }
   const destinationPicturesTemplate = createDestinationPicturesTemplate();
-
+  // Функция для отрисовывания БЛОКА DESTINATIONS
+  function createDestinationsBlockTemplate() {
+    if (pointDestinationObj) {
+      return `<section class="event__section  event__section--destination">
+              <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+              <p class="event__destination-description">${pointDestinationObj.description}</p>
+              <div class="event__photos-container">
+                <div class="event__photos-tape">${destinationPicturesTemplate}</div>
+              </div>
+            </section>`;
+    } else {
+      return '';
+    }
+  }
+  const DestinationsBlockTemplate = createDestinationsBlockTemplate();
 
   // OFFERS
+  // Сначала получаем из массива объектов ВСЕХ offers ТОЛЬКО ТОТ объект, что указан в точке
   const typeOffersObj = OffersList.find((item) => item.type === type);
+  // Функция для отрисовки инпутов офферов (чекнутых или нет)
   const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
     return `<div class="event__offer-selector">
@@ -48,6 +64,40 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
     </div>`;
   }).join('');
   const typeOffersTemplate = createTypeOffersTemplate();
+  // Функция для отрисовывания БЛОКА OFFERS
+  function createOffersBlockTemplate() {
+    if (typeOffersObj.offers.length > 0) {
+      return `<section class="event__section  event__section--offers">
+              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+              <div class="event__available-offers">
+                ${typeOffersTemplate}
+              </div>
+            </section>`;
+    } else {
+      return '';
+    }
+  }
+  const OffersBlockTemplate = createOffersBlockTemplate();
+
+  //////////////////////////
+  // Event type list
+  function createEventTypeListItemsTemplate() {
+    return OffersList.map((offer) =>
+      `<div class="event__type-item">
+         <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}">
+         <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-1">${offer.type}</label>
+       </div>`
+    ).join('');
+  }
+  const EventTypeListItemsTemplate = createEventTypeListItemsTemplate();
+
+  // Destinations list - список городов для выбора
+  function createDestinationListItemsTemplate() {
+    return destinationsList.map((item) =>
+      `<option value="${item.name}"></option>`
+    ).join('');
+  }
+  const DestinationListItemsTemplate = createDestinationListItemsTemplate();
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -62,51 +112,7 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-
-                        <div class="event__type-item">
-                          <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                          <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                          <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                          <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                          <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                          <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked="">
-                          <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                          <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                          <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                          <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-                        </div>
+                          ${EventTypeListItemsTemplate}
                       </fieldset>
                     </div>
                   </div>
@@ -115,11 +121,9 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointDestinationObj ? pointDestinationObj.name : ""}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointDestinationObj ? pointDestinationObj.name : ''}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                      <option value="Amsterdam"></option>
-                      <option value="Geneva"></option>
-                      <option value="Chamonix"></option>
+                      ${DestinationListItemsTemplate}
                     </datalist>
                   </div>
 
@@ -143,24 +147,8 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                   <button class="event__reset-btn" type="reset">Cancel</button>
                 </header>
                 <section class="event__details">
-                  <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-                    <div class="event__available-offers">
-                      ${typeOffersTemplate}
-                    </div>
-                  </section>
-
-                ${ pointDestinationObj ?
-                `<section class="event__section  event__section--destination">
-                  <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                  <p class="event__destination-description">${pointDestinationObj.description}</p>
-                  <div class="event__photos-container">
-                    <div class="event__photos-tape">
-                      ${destinationPicturesTemplate}
-                    </div>
-                  </div>
-                </section>`
-                : ``}
+                ${OffersBlockTemplate}
+                ${DestinationsBlockTemplate}
                 </section>
               </form>
             </li>`;

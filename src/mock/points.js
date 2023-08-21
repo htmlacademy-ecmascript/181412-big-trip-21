@@ -8,7 +8,7 @@ const mockPoints = [
     dateFrom: '2023-06-11T03:45:56.845Z',
     dateTo: '2023-07-12T05:00:13.375Z',
     isFavorite: true,
-    destination: '1'
+    destination: ''
   },
   {
     type: 'bus',
@@ -127,12 +127,7 @@ const mockDestinations = [
     id: '2',
     description: 'Is the largest city and administrative centre of Novosibirsk Oblast and the Siberian Federal District in Russia.',
     name: 'Novosibirsk',
-    pictures: [
-      {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 10)}`,
-        description: 'Novosibirsk Novosibirsk'
-      }
-    ]
+    pictures: []
   },
   {
     id: '3',
@@ -153,153 +148,153 @@ const mockDestinations = [
 
 const mockOffers = [
   {
-    'type': 'taxi',
-    'offers': [
+    type: 'taxi',
+    offers: [
       {
-        'id': 1,
-        'title': 'Select radio station',
-        'price': 120
+        id: 1,
+        title: 'Select radio station',
+        price: 120
       },
       {
-        'id': 2,
-        'title': 'Order Uber',
-        'price': 20
+        id: 2,
+        title: 'Order Uber',
+        price: 20
       },
       {
-        'id': 3,
-        'title': 'Non-smoking driver',
-        'price': 5
+        id: 3,
+        title: 'Non-smoking driver',
+        price: 5
       },
       {
-        'id': 4,
-        'title': 'Baby chair',
-        'price': 5
+        id: 4,
+        title: 'Baby chair',
+        price: 5
       },
     ]
   },
   {
-    'type': 'bus',
-    'offers': [
+    type: 'bus',
+    offers: [
       {
-        'id': 1,
-        'title': 'Select radio station',
-        'price': 120
+        id: 1,
+        title: 'Select radio station',
+        price: 120
       },
       {
-        'id': 2,
-        'title': 'Window seat',
-        'price': 20
+        id: 2,
+        title: 'Window seat',
+        price: 20
       },
       {
-        'id': 3,
-        'title': 'reclining seat',
-        'price': 20
+        id: 3,
+        title: 'reclining seat',
+        price: 20
       }
     ]
   },
   {
-    'type': 'flight',
-    'offers': [
+    type: 'flight',
+    offers: [
       {
-        'id': 1,
-        'title': 'Add luggage',
-        'price': 30
+        id: 1,
+        title: 'Add luggage',
+        price: 30
       },
       {
-        'id': 2,
-        'title': 'Business Class',
-        'price': 100
+        id: 2,
+        title: 'Business Class',
+        price: 100
       },
       {
-        'id': 3,
-        'title': 'Vegan lunch',
-        'price': 15
+        id: 3,
+        title: 'Vegan lunch',
+        price: 15
       },
       {
-        'id': 4,
-        'title': 'Choose a seat',
-        'price': 5
+        id: 4,
+        title: 'Choose a seat',
+        price: 5
       },
       {
-        'id': 5,
-        'title': 'Taxi at the gangway',
-        'price': 40
+        id: 5,
+        title: 'Taxi at the gangway',
+        price: 40
       },
     ]
   },
   {
     'type': 'train',
     'offers': [{
-      'id': 1,
-      'title': 'Select radio station',
-      'price': 120
+      id: 1,
+      title: 'Select radio station',
+      price: 120
     },
     {
-      'id': 2,
-      'title': 'Bottom shelf',
-      'price': 20
+      id: 2,
+      title: 'Bottom shelf',
+      price: 20
     }]
   },
   {
-    'type': 'ship',
-    'offers': []
+    type: 'ship',
+    offers: []
   },
   {
-    'type': 'drive',
-    'offers': [{
-      'id': 1,
-      'title': 'Non-smoking driver',
-      'price': 120
+    type: 'drive',
+    offers: [{
+      id: 1,
+      title: 'Non-smoking driver',
+      price: 120
     },
     {
-      'id': 2,
-      'title': 'Air conditioning',
-      'price': 20
+      id: 2,
+      title: 'Air conditioning',
+      price: 20
     }]
   },
   {
-    'type': 'check-in',
-    'offers': [{
-      'id': 1,
-      'title': 'Additional cleaning',
-      'price': 120
+    type: 'check-in',
+    offers: [{
+      id: 1,
+      title: 'Additional cleaning',
+      price: 120
     },
     {
-      'id': 2,
-      'title': 'Early settlement',
-      'price': 20
+      id: 2,
+      title: 'Early settlement',
+      price: 20
     }]
   },
   {
-    'type': 'sightseeing',
-    'offers': [{
-      'id': 1,
-      'title': 'Skip-the-line entry',
-      'price': 120
+    type: 'sightseeing',
+    offers: [{
+      id: 1,
+      title: 'Skip-the-line entry',
+      price: 120
     },
     {
-      'id': 2,
-      'title': 'Personal guide',
-      'price': 20
+      id: 2,
+      title: 'Personal guide',
+      price: 20
     },
     {
-      'id': 3,
-      'title': 'Lunch included',
-      'price': 20
+      id: 3,
+      title: 'Lunch included',
+      price: 20
     }
     ]
   },
   {
-    'type': 'restaurant',
-    'offers': [{
-      'id': 1,
-      'title': 'Table by the window',
-      'price': 12
+    type: 'restaurant',
+    offers: [{
+      id: 1,
+      title: 'Table by the window',
+      price: 12
     },
     {
-      'id': 2,
-      'title': 'Personal waiter',
-      'price': 20
+      id: 2,
+      title: 'Personal waiter',
+      price: 20
     }]
   },
 ];
@@ -309,4 +304,4 @@ function getRandomTask() {
   return getRandomArrayElement(mockPoints);
 }
 
-export {getRandomTask, mockDestinations, mockOffers};
+export {getRandomTask, mockDestinations, mockOffers, mockPoints};
