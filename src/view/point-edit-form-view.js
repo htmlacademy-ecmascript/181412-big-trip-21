@@ -146,6 +146,10 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                  </button>
+
                 </header>
                 <section class="event__details">
                 ${OffersBlockTemplate}
@@ -155,20 +159,38 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
             </li>`;
 }
 
-export default class EditPointFormView extends AbstractView {
+export default class PointEditFormView extends AbstractView {
   #point = null;
   #destinations = null;
   #offers = null;
+  #handleFormSubmit = null;
+  #handleEditClick = null;
+
   // При создании экземляра класса Формы мы должны передать объект с данными точки,
   // а также массивы destinations и offers
-  constructor({point = BLANK_POINT, destinations, offers}) {
-    super(); // Так как класс унаследован, в конструктор добавляем super!!
-    this.#point = point; // Сохраняем пришедшие данные точки в свойство класса
-    this.#destinations = destinations; // Сохраняем пришедшие данные destinations в свойство класса
-    this.#offers = offers; // Сохраняем пришедшие данные offers в свойство класса
+  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onEditClick}) {
+    super();
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleEditClick = onEditClick;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
   get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
     return createEditFormTemplate(this.#point, this.#destinations, this.#offers);
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }

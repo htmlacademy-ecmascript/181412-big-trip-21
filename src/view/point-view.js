@@ -72,17 +72,26 @@ export default class EventListView extends AbstractView {
   #point = null;
   #destinations = null;
   #offers = null;
+  #handleEditClick = null;
 
   // При создании экземляра класса Точки мы должны передать объект с данными точки,
   // а также массивы destinations и offers
-  constructor({point, destinations, offers}) {
+  constructor({point, destinations, offers, onEditClick}) {
     super();
-    this.#point = point; // Сохраняем пришедшие данные точки в свойство класса
-    this.#destinations = destinations; // Сохраняем пришедшие данные destinations в свойство класса
-    this.#offers = offers; // Сохраняем пришедшие данные offers в свойство класса
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#handleEditClick = onEditClick; // Сохраняем, что будем делать по "клику изменения"
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
   get template() { // Получем шаблон элемента (кусок HTML-разметки)
     return createPointTemplate(this.#point, this.#destinations, this.#offers); // Для отрисовки используем пришедшие данные объекта
   }
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }
