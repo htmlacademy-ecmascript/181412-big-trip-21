@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createFilterTemplate() {
   return `<form class="trip-filters" action="#" method="get">
@@ -26,20 +26,8 @@ function createFilterTemplate() {
           </form>`;
 }
 
-export default class FilterView {
-  getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
+export default class FilterView extends AbstractView {
+  get template() { // Получем шаблон элемента (кусок HTML-разметки)
     return createFilterTemplate();
-  }
-
-  getElement() { // Создаем DOM-элемент
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

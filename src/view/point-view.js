@@ -1,9 +1,10 @@
-import {createElement} from '../render.js';
 import {humanizePointDueDate, calculateDiffTime} from '../utils.js';
 import {DATE_FORMAT, TIME_FORMAT, FULL_DATE_FORMAT} from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createPointTemplate(point, destinationsList, OffersList) {
   const {type, offers, basePrice, dateFrom, dateTo, isFavorite, destination} = point;
+  //console.log('point точки', point)
 
   const dateStart = humanizePointDueDate(dateFrom, DATE_FORMAT); // например, SEP 11
   const dateFullStart = humanizePointDueDate(dateFrom, FULL_DATE_FORMAT); // например, 2019-03-18
@@ -15,7 +16,7 @@ function createPointTemplate(point, destinationsList, OffersList) {
 
   // DESTINATIONS
   // Получаем из массива объекта всех destinations только тот объект, что указан в точке
-  const pointDestination = destinationsList.find((item) => item.id === destination).name;
+  const pointDestinationObj = destinationsList.find((item) => item.id === destination);
 
   // Для отрисовывания OFFERS
   const typeOffersObj = OffersList.find((item) => item.type === type);
@@ -38,7 +39,7 @@ function createPointTemplate(point, destinationsList, OffersList) {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${type} ${pointDestination}</h3>
+                <h3 class="event__title">${type} ${pointDestinationObj ? pointDestinationObj.name : ''}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${dateFullStart}T${timeStart}">${timeStart}</time>
@@ -67,26 +68,21 @@ function createPointTemplate(point, destinationsList, OffersList) {
             </li>`;
 }
 
-export default class EventListView {
-  constructor({point, destinations, offers}) { // При создании экземляра класса мы должны передать объект с данными (создаем в презентере)
-    this.point = point; // Сохраняем пришедшие данные точки в свойство класса
-    this.destinations = destinations; // Сохраняем пришедшие данные destinations в свойство класса
-    this.offers = offers; // Сохраняем пришедшие данные offers в свойство класса
+export default class EventListView extends AbstractView {
+  #point = null;
+  #destinations = null;
+  #offers = null;
+
+  // При создании экземляра класса Точки мы должны передать объект с данными точки,
+  // а также массивы destinations и offers
+  constructor({point, destinations, offers}) {
+    super();
+    this.#point = point; // Сохраняем пришедшие данные точки в свойство класса
+    this.#destinations = destinations; // Сохраняем пришедшие данные destinations в свойство класса
+    this.#offers = offers; // Сохраняем пришедшие данные offers в свойство класса
   }
 
-  getTemplate() { // Получем шаблон элемента (кусок HTML-разметки)
-    return createPointTemplate(this.point, this.destinations, this.offers); // Для отрисовки используем пришедшие данные объекта
-  }
-
-  getElement() { // Создаем DOM-элемент
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() { // Получем шаблон элемента (кусок HTML-разметки)
+    return createPointTemplate(this.#point, this.#destinations, this.#offers); // Для отрисовки используем пришедшие данные объекта
   }
 }
