@@ -1,4 +1,4 @@
-import {getRandomArrayElement, getRandomNumber} from '../utils.js';
+import {getRandomArrayElement, getRandomNumber} from '../utils/common.js';
 
 const mockPoints = [
   {
@@ -300,8 +300,8 @@ const mockOffers = [
 ];
 
 // Функция для получения случайной точки из массива точек
-function getRandomTask() {
+function getRandomPoint() {
   return getRandomArrayElement(mockPoints);
 }
 
-export {getRandomTask, mockDestinations, mockOffers, mockPoints};
+export {getRandomPoint, mockDestinations, mockOffers, mockPoints};

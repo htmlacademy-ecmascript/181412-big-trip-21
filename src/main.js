@@ -2,10 +2,9 @@ import TripInfoView from './view/trip-info-view.js'; // обертка section
 import TripInfoMainView from './view/trip-info-main-view.js'; // title
 import TripInfoCostView from './view/trip-info-cost-view.js'; // cost
 import FilterView from './view/filter-view.js';
-import SortView from './view/sort-view.js';
 import PointsPresenter from './presenter/points-presenter.js';
 import PointsModel from './model/points-model.js';
-import {render, RenderPosition} from './render.js';
+import {render, RenderPosition} from './framework/render.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const siteMainElement = document.querySelector('.page-main');
@@ -25,15 +24,11 @@ const pointPresenter = new PointsPresenter({
 // сначала обертка section
 render(tripInfoComponent, siteTripMainElement, RenderPosition.AFTERBEGIN);
 // в обертку section добавляем title
-render(new TripInfoMainView(), tripInfoComponent.getElement());
+render(new TripInfoMainView(), tripInfoComponent.element);
 // потом в обертку section добавляем cost
-render(new TripInfoCostView(), tripInfoComponent.getElement());
+render(new TripInfoCostView(), tripInfoComponent.element);
 
 // Отрисовываем фильтры в Header:
 render(new FilterView(), siteFilterElement, RenderPosition.BEFOREEND);
 
-// Отрисовываем сортировку в Main:
-render(new SortView(), siteTripEventsElement);
-
-// Отрисовываем список events, там же форма редактирования
 pointPresenter.init();

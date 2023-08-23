@@ -1,6 +1,6 @@
-import {createElement} from '../render.js';
-import {humanizePointDueDate} from '../utils.js';
+import {humanizePointDueDate} from '../utils/point.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const BLANK_POINT = { // Это объект с описанием точки по умолчанию. ПУСТАЯ ТОЧКА/ФОРМА РЕДАКТИРОВАНИЯ
   type: 'flight',
@@ -14,6 +14,7 @@ const BLANK_POINT = { // Это объект с описанием точки п
 
 function createEditFormTemplate(point, destinationsList, OffersList) {
   const {type, offers, basePrice, dateFrom, dateTo, destination} = point;
+  //console.log("point формы редактирования - ", point)
 
   const dateStart = humanizePointDueDate(dateFrom, FULL_DATE_EDIT_FORMAT); // например, 19/03/19
   const dateEnd = humanizePointDueDate(dateTo, FULL_DATE_EDIT_FORMAT); // например, 19/03/25
@@ -145,6 +146,10 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                  </button>
+
                 </header>
                 <section class="event__details">
                 ${OffersBlockTemplate}
@@ -154,28 +159,38 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
             </li>`;
 }
 
-export default class EditPointFormView {
+export default class PointEditFormView extends AbstractView {
+  #point = null;
+  #destinations = null;
+  #offers = null;
+  #handleFormSubmit = null;
+  #handleEditClick = null;
+
   // При создании экземляра класса Формы мы должны передать объект с данными точки,
   // а также массивы destinations и offers
-  constructor({point = BLANK_POINT, destinations, offers}) {
-    this.point = point; // Сохраняем пришедшие данные точки в свойство класса
-    this.destinations = destinations; // Сохраняем пришедшие данные destinations в свойство класса
-    this.offers = offers; // Сохраняем пришедшие данные offers в свойство класса
+  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onEditClick}) {
+    super();
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleEditClick = onEditClick;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
-    return createEditFormTemplate(this.point, this.destinations, this.offers);
+  get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
+    return createEditFormTemplate(this.#point, this.#destinations, this.#offers);
   }
 
-  getElement() { // Создаем DOM-элемент
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }
