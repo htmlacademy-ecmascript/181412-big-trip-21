@@ -1,4 +1,4 @@
-import {humanizePointDueDate} from '../utils.js';
+import {humanizePointDueDate} from '../utils/point.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 

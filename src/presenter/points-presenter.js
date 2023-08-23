@@ -3,7 +3,7 @@ import PointView from '../view/point-view.js'; // point
 import PointEditFormView from '../view/point-edit-form-view.js'; // форма создания/редактирования
 import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
-import {render, replace} from '../framework/render.js';
+import {render, replace, RenderPosition} from '../framework/render.js';
 
 
 export default class PointsPresenter {
@@ -81,7 +81,7 @@ export default class PointsPresenter {
         this.#renderPoint({point: this.#points[i], destinations: this.#destinations, offers: this.#offers});
       }
       // Вставляем сортировку
-      render(new SortView(), this.#presenterContainerElement);
+      render(new SortView(), this.#presenterContainerElement, RenderPosition.AFTERBEGIN);
     } else {
       render(new NoPointView(), this.#presenterContainerElement);
     }

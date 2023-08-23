@@ -1,4 +1,4 @@
-import {humanizePointDueDate, calculateDiffTime} from '../utils.js';
+import {humanizePointDueDate, calculateDiffTime} from '../utils/point.js';
 import {DATE_FORMAT, TIME_FORMAT, FULL_DATE_FORMAT} from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
