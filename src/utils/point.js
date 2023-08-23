@@ -3,6 +3,8 @@ import duration from 'dayjs/plugin/duration.js';
 import {FILTER_DAY_FORMAT} from '../const.js';
 dayjs.extend(duration);
 
+const MINUTES_IN_HOUR = 60;
+
 // Функция для преобразования даты в нужный формат
 function humanizePointDueDate(dueDate, dateFormat) {
   return dueDate ? dayjs(dueDate).format(dateFormat) : '';
@@ -21,7 +23,7 @@ function calculateDiffTime(dateStart, dateEnd) {
       return differentTime.format('DD[D] HH[H] mm[M]');
     case (hours > 0):
       return differentTime.format('HH[H] mm[M]');
-    case (minutes < 60):
+    case (minutes < MINUTES_IN_HOUR):
       return differentTime.format('mm[M]');
   }
 }

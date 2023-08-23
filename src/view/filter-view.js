@@ -10,7 +10,7 @@ function createFilterItemTemplate(filter, isChecked) {
       type="radio"
       name="trip-filter"
       value="${type}"
-      ${isChecked ? 'checked' : ''}
+      ${isChecked ? '' : 'checked'}
       ${hasPoints ? '' : 'disabled'}>
       <label class="trip-filters__filter-label" for="filter-${type}">${type}</label>
     </div>`
@@ -19,7 +19,7 @@ function createFilterItemTemplate(filter, isChecked) {
 
 function createFilterTemplate(filterItems) {
   const filterItemsTemplate = filterItems
-    .map((filter, index) => createFilterItemTemplate(filter, index === 0))
+    .map((filter, index) => createFilterItemTemplate(filter, index)) //передаем INDEX, index 0 вернет false (и тогда первый эл-т станет checked), остальные true
     .join('');
 
   return (
