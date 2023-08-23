@@ -5,6 +5,7 @@ import FilterView from './view/filter-view.js';
 import PointsPresenter from './presenter/points-presenter.js';
 import PointsModel from './model/points-model.js';
 import {render, RenderPosition} from './framework/render.js';
+import {generateFilter} from './mock/filter.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const siteMainElement = document.querySelector('.page-main');
@@ -29,6 +30,7 @@ render(new TripInfoMainView(), tripInfoComponent.element);
 render(new TripInfoCostView(), tripInfoComponent.element);
 
 // Отрисовываем фильтры в Header:
-render(new FilterView(), siteFilterElement, RenderPosition.BEFOREEND);
+const filters = generateFilter(pointsModel.points);
+render(new FilterView({filters}), siteFilterElement, RenderPosition.BEFOREEND);
 
 pointPresenter.init();
