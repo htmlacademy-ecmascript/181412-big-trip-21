@@ -304,6 +304,7 @@ main {
     cursor: default; }
   .trip-filters__filter-input:disabled + .trip-filters__filter-label {
     opacity: 0.4;
+    color: red /*Временно!*/;
     cursor: default; }
 
 .trip-events {

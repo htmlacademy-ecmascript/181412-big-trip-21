@@ -50,8 +50,8 @@ const mockPoints = [
     type: 'flight',
     offers: [1, 2, 3],
     basePrice: 150,
-    dateFrom: '2023-06-11T03:15:56.845Z',
-    dateTo: '2023-06-12T03:45:13.375Z',
+    dateFrom: '2023-08-22T03:15:56.845Z',
+    dateTo: '2023-08-25T03:45:13.375Z',
     isFavorite: true,
     destination: '0'
   },
