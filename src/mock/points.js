@@ -308,4 +308,12 @@ function getRandomPoint() {
   };
 }
 
-export {getRandomPoint, mockDestinations, mockOffers, mockPoints};
+function getDestinations() {
+  return mockDestinations;
+}
+
+function getOffers() {
+  return mockOffers;
+}
+
+export {getRandomPoint, mockDestinations, mockOffers, mockPoints, getDestinations, getOffers};

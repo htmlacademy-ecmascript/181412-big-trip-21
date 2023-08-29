@@ -6,6 +6,7 @@ import PointsListPresenter from './presenter/points-list-presenter.js';
 import PointsModel from './model/points-model.js';
 import {render, RenderPosition} from './framework/render.js';
 import {generateFilter} from './mock/filter.js';
+import {getDestinations, getOffers} from './mock/points.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const siteMainElement = document.querySelector('.page-main');
@@ -13,7 +14,10 @@ const siteTripMainElement = siteHeaderElement.querySelector('.trip-main');
 const siteFilterElement = siteHeaderElement.querySelector('.trip-controls__filters');
 const siteTripEventsElement = siteMainElement.querySelector('.trip-events');
 
-const pointsModel = new PointsModel();
+const pointsModel = new PointsModel({
+  destinations: getDestinations(),
+  offers: getOffers()
+});
 
 const tripInfoComponent = new TripInfoView(); // экземпляр класс обертки section
 const pointListPresenter = new PointsListPresenter({
