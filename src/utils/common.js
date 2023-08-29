@@ -8,4 +8,10 @@ function getRandomNumber(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-export {getRandomArrayElement, getRandomNumber};
+// Функция для получения обновленной точки
+// возвращает такую точку из массива, у кот. id совпадает c id переданной
+function updateItem(items, updateItem) {
+  return items.map((item) => item.id === updateItem.id ? updateItem : item);
+}
+
+export {getRandomArrayElement, getRandomNumber, updateItem};

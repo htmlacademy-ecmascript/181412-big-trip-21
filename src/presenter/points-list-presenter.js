@@ -3,6 +3,7 @@ import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
 import {render, RenderPosition} from '../framework/render.js';
+import {updateItem} from '../utils/common.js';
 
 
 export default class PointsListPresenter {
@@ -16,6 +17,8 @@ export default class PointsListPresenter {
   #destinations = [];
   #offers = [];
 
+  #allPointPresenters = new Map();
+
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР, список ul!
   //  - модели с данными
@@ -28,8 +31,10 @@ export default class PointsListPresenter {
   #renderPoint({point, destinations, offers}) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointListComponent.element,
+      onDataChange: this.#handlePointChange
     });
     pointPresenter.init(point, destinations, offers);
+    this.#allPointPresenters.set(point.id, pointPresenter);
   }
 
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ
@@ -56,6 +61,12 @@ export default class PointsListPresenter {
     }
   }
 
+  // Отдельный приватный метод для очистки списка точек
+  #clearPointsList() {
+    this.#allPointPresenters.forEach((presenter) => presenter.destroy());
+    this.#allPointPresenters.clear();
+  }
+
   init() {
     this.#points = [...this.#pointsModel.points]; // Это наш массив точек, которые мы отрисовываем
     this.#destinations = [...this.#pointsModel.destinations];
@@ -63,4 +74,10 @@ export default class PointsListPresenter {
 
     this.#renderPointsList();
   }
+
+  // Обработчик при обновлении точки
+  #handlePointChange = (updatedPoint) => {
+    this.#points = updateItem(this.#points, updatedPoint);
+    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#points)
+  };
 }
