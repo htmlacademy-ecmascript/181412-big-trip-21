@@ -31,7 +31,8 @@ export default class PointsListPresenter {
   #renderPoint({point, destinations, offers}) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointListComponent.element,
-      onDataChange: this.#handlePointChange
+      onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange
     });
     pointPresenter.init(point, destinations, offers);
     this.#allPointPresenters.set(point.id, pointPresenter);
@@ -78,6 +79,10 @@ export default class PointsListPresenter {
   // Обработчик при обновлении точки
   #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
-    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#points)
+    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#points);
+  };
+
+  #handleModeChange = () => {
+    this.#allPointPresenters.forEach((presenter) => presenter.resetView());
   };
 }
