@@ -164,20 +164,20 @@ export default class PointEditFormView extends AbstractView {
   #destinations = null;
   #offers = null;
   #handleFormSubmit = null;
-  #handleEditClick = null;
+  #handleCollapseClick = null;
 
   // При создании экземляра класса Формы мы должны передать объект с данными точки,
   // а также массивы destinations и offers
-  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onEditClick}) {
+  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onCollapseClick}) {
     super();
     this.#point = point;
     this.#destinations = destinations;
     this.#offers = offers;
     this.#handleFormSubmit = onFormSubmit;
-    this.#handleEditClick = onEditClick;
+    this.#handleCollapseClick = onCollapseClick;
 
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#collapseClickHandler);
   }
 
   get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
@@ -186,11 +186,11 @@ export default class PointEditFormView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this.#point);
   };
 
-  #editClickHandler = (evt) => {
+  #collapseClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleEditClick();
+    this.#handleCollapseClick();
   };
 }

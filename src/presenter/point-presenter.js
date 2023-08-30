@@ -1,0 +1,122 @@
+import {render, replace, remove} from '../framework/render.js';
+import PointView from '../view/point-view.js';
+import PointEditFormView from '../view/point-edit-form-view.js';
+
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
+export default class PointPresenter {
+  #pointListContainer = null;
+
+  #pointComponent = null;
+  #pointEditFormComponent = null;
+
+  #mode = Mode.DEFAULT;
+
+  #point = null;
+  #destinations = [];
+  #offers = [];
+
+  #handleDataChange = null;
+  #handleModeChange = null;
+
+  constructor({pointListContainer, onDataChange, onModeChange}) {
+    this.#pointListContainer = pointListContainer; // сюда сохранили обертку ul
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
+  }
+
+  init(point, destinations, offers) {
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+
+    const prevPointComponent = this.#pointComponent;
+    const prevPointEditFormComponent = this.#pointEditFormComponent;
+
+    this.#pointComponent = new PointView({
+      point: this.#point,
+      destinations: this.#destinations,
+      offers: this.#offers,
+      onEditClick: this.#handleEditClick,
+      onFavoriteClick: this.#handleFavoriteClick
+    });
+
+    this.#pointEditFormComponent = new PointEditFormView({
+      point: this.#point,
+      destinations: this.#destinations,
+      offers: this.#offers,
+      onFormSubmit: this.#handleFormSubmit,
+      onCollapseClick: this.#handleFormCollapse,
+    });
+
+    // Если точка или форма еще не были отрисованы, то только тогда создаем форму/точку
+    if (prevPointComponent === null || prevPointEditFormComponent === null) {
+      render(this.#pointComponent, this.#pointListContainer);
+      return;
+    }
+
+    if (this.#mode === Mode.DEFAULT) {
+      replace(this.#pointComponent, prevPointComponent);
+    }
+
+    if (this.#mode === Mode.EDITING) {
+      replace(this.#pointEditFormComponent, prevPointEditFormComponent);
+    }
+
+    remove(prevPointComponent);
+    remove(prevPointEditFormComponent);
+  }
+
+  destroy() {
+    remove(this.#pointComponent);
+    remove(this.#pointEditFormComponent);
+  }
+
+  resetView() { // Если находимся в режиме редактирования, то меняем Форму на Точку
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToPoint();
+    }
+  }
+
+  // Метод, что происходит по нажатию на Esc
+  #escKeyDownHandler = (evt) => { // По нажатию на Esc происходит смена формы на точку
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#replaceFormToPoint();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
+  };
+
+  #replacePointToForm() {
+    replace(this.#pointEditFormComponent, this.#pointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceFormToPoint() {
+    replace(this.#pointComponent, this.#pointEditFormComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
+  }
+
+  #handleEditClick = () => {
+    this.#replacePointToForm();
+  };
+
+  #handleFormSubmit = (point) => {
+    this.#handleDataChange(point);
+    this.#replaceFormToPoint();
+  };
+
+  #handleFormCollapse = () => {
+    this.#replaceFormToPoint();
+  };
+
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+  };
+}
