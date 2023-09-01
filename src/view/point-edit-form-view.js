@@ -1,6 +1,6 @@
 import {humanizePointDueDate} from '../utils/point.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 const BLANK_POINT = { // Это объект с описанием точки по умолчанию. ПУСТАЯ ТОЧКА/ФОРМА РЕДАКТИРОВАНИЯ
   type: 'flight',
@@ -56,7 +56,7 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
   const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
     return `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
+      <input class="event__offer-checkbox  visually-hidden" data-id="${offer.id}" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
       <label class="event__offer-label" for="event-offer-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -159,7 +159,7 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
             </li>`;
 }
 
-export default class PointEditFormView extends AbstractView {
+export default class PointEditFormView extends AbstractStatefulView {
   #point = null;
   #destinations = null;
   #offers = null;
@@ -170,27 +170,85 @@ export default class PointEditFormView extends AbstractView {
   // а также массивы destinations и offers
   constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onCollapseClick}) {
     super();
-    this.#point = point;
+    // просто глубоко копируем пришедший объект с данными точки, обращаться this._state
+    this._setState(PointEditFormView.parsePointToState(point));
+
     this.#destinations = destinations;
     this.#offers = offers;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCollapseClick = onCollapseClick;
 
+    this._restoreHandlers();
+  }
+
+  _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#collapseClickHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelectorAll('.event__type-input')
+      .forEach((input) => input.addEventListener('change', this.#typeChangeHandler));
+    this.element.querySelectorAll('.event__offer-checkbox')
+      .forEach((input) => input.addEventListener('change', this.#offersChangeHandler));
+
   }
 
   get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
-    return createEditFormTemplate(this.#point, this.#destinations, this.#offers);
+    return createEditFormTemplate(this._state, this.#destinations, this.#offers);
   }
+
+  // Метод для превращения данных точки в СОСТОЯНИЕ (точка + новые свойства)
+  static parsePointToState(point) {
+    return {
+      ...point,
+    };
+  }
+
+  // Метод для превращения данных состояния в ТОЧКУ (точка - удалили лишние новые свойства)
+  static parseStateToPoint(state) {
+    const point = {...state};
+    return point;
+  }
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    const selectedDestination = this.#destinations.find((item) => item.name === evt.target.value);
+    this.updateElement({
+      destination: selectedDestination?.id,
+    });
+  };
+
+  #typeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      type: evt.target.value,
+      offers: [],
+    });
+  };
+
+  #offersChangeHandler = (evt) => {
+    evt.preventDefault();
+    const checkedCheckboxes = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
+    const updatedCheckedCheckboxes = [];
+    checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(parseInt(element.dataset.id, 10)));
+    this._setState({
+      offers: updatedCheckedCheckboxes,
+    });
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this.#point);
+    //console.log('при отправке', this._state)
+    this.#handleFormSubmit(PointEditFormView.parseStateToPoint(this._state)); // Сворачиваем форму в точку уже с !новыми! данными Состояния!
   };
 
   #collapseClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleCollapseClick();
+    this.#handleCollapseClick(PointEditFormView.parseStateToPoint(this._state));
   };
+
+  reset(point) {
+    this.updateElement(
+      PointEditFormView.parsePointToState(point)
+    );
+  }
 }

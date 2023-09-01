@@ -77,6 +77,7 @@ export default class PointPresenter {
 
   resetView() { // Если находимся в режиме редактирования, то меняем Форму на Точку
     if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditFormComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
   }
@@ -85,6 +86,7 @@ export default class PointPresenter {
   #escKeyDownHandler = (evt) => { // По нажатию на Esc происходит смена формы на точку
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#pointEditFormComponent.reset(this.#point);
       this.#replaceFormToPoint();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
@@ -112,7 +114,8 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
   };
 
-  #handleFormCollapse = () => {
+  #handleFormCollapse = (point) => {
+    this.#handleDataChange(point);
     this.#replaceFormToPoint();
   };
 

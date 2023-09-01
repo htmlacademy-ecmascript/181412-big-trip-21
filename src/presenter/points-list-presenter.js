@@ -126,6 +126,7 @@ export default class PointsListPresenter {
         this.#points = [...this.#sourcedPoints];
     }
     this.#currentSortType = sortType;
+    this.#renderSort();
   }
 
   #handleSortTypeChange = (sortType) => {
@@ -135,6 +136,5 @@ export default class PointsListPresenter {
     this.#sortPoints(sortType);
     this.#clearPointsList();
     this.#renderPointsList();
-    this.#renderSort();
   };
 }
