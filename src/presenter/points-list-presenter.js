@@ -33,13 +33,13 @@ export default class PointsListPresenter {
   }
 
   // Отдельный приватный метод для отрисовки ОДНОЙ ТОЧКИ
-  #renderPoint({point, destinations, offers}) {
+  #renderPoint({point}) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointListComponent.element,
       onDataChange: this.#handlePointChange,
       onModeChange: this.#handleModeChange
     });
-    pointPresenter.init(point, destinations, offers);
+    pointPresenter.init(point, this.#destinations, this.#offers);
     this.#allPointPresenters.set(point.id, pointPresenter);
   }
 
@@ -71,7 +71,7 @@ export default class PointsListPresenter {
     render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
     // Вставляем ТОЧКИ, пользуясь приватным методом
     for (let i = 0; i < this.#points.length; i++) {
-      this.#renderPoint({point: this.#points[i], destinations: this.#destinations, offers: this.#offers});
+      this.#renderPoint({point: this.#points[i]});
     }
   }
 
