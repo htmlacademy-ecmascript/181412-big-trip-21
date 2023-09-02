@@ -2,7 +2,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import {SortType} from '../const.js';
 
 function createSortItemTemplate(sortItem){
-  const disabled = ['event', 'offer'];
+  const disabledSortItems = ['event', 'offer'];
   return `
     <div class="trip-sort__item  trip-sort__item--${sortItem.type}">
       <input
@@ -13,7 +13,7 @@ function createSortItemTemplate(sortItem){
         name="trip-sort"
         value="sort-${sortItem.type}"
         ${(sortItem.isChecked) ? 'checked' : ''}
-        ${(disabled.includes(sortItem.type)) ? 'disabled' : ''}
+        ${(disabledSortItems.includes(sortItem.type)) ? 'disabled' : ''}
       >
       <label class="trip-sort__btn" for="sort-${sortItem.type}">${sortItem.type}</label>
     </div>
