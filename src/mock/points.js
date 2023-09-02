@@ -7,7 +7,7 @@ const mockPoints = [
     offers: [1, 2],
     basePrice: 500,
     dateFrom: '2023-06-11T03:45:56.845Z',
-    dateTo: '2023-07-12T05:00:13.375Z',
+    dateTo: '2023-06-12T05:00:13.375Z',
     isFavorite: true,
     destination: ''
   },
@@ -78,8 +78,8 @@ const mockPoints = [
     type: 'restaurant',
     offers: [2],
     basePrice: 100,
-    dateFrom: '2023-08-10T03:30:56.845Z',
-    dateTo: '2023-08-10T04:15:13.375Z',
+    dateFrom: '2023-08-11T03:30:56.845Z',
+    dateTo: '2023-08-21T07:00:13.375Z',
     isFavorite: false,
     destination: '2'
   }
@@ -316,4 +316,8 @@ function getOffers() {
   return mockOffers;
 }
 
-export {getRandomPoint, mockDestinations, mockOffers, mockPoints, getDestinations, getOffers};
+function getPoints() {
+  return mockPoints;
+}
+
+export {getRandomPoint, getDestinations, getOffers, getPoints};

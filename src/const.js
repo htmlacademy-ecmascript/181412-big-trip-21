@@ -11,4 +11,12 @@ const FilterType = {
   PAST: 'past'
 };
 
-export {DATE_FORMAT, TIME_FORMAT, FULL_DATE_FORMAT, FULL_DATE_EDIT_FORMAT, FILTER_DAY_FORMAT, FilterType};
+const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer'
+};
+
+export {DATE_FORMAT, TIME_FORMAT, FULL_DATE_FORMAT, FULL_DATE_EDIT_FORMAT, FILTER_DAY_FORMAT, FilterType, SortType};

@@ -33,8 +33,6 @@ function calculateDiffTime(dateStart, dateEnd) {
 // Текущая ДО начала
 const isFuturePoint = (dateStart) => {
   const formatDateStart = humanizePointDueDate(dateStart, FILTER_DAY_FORMAT);
-  //console.log('дата Начала Больше?', formatDateStart)
-  //console.log('текущей даты', '2023-05-14')
   return dayjs().isBefore(dayjs(formatDateStart));
 };
 
@@ -44,9 +42,6 @@ const isPresentPoint = (dateStart, dateEnd) => {
   const formatDateStart = humanizePointDueDate(dateStart, FILTER_DAY_FORMAT);
   const formatDateEnd = humanizePointDueDate(dateEnd, FILTER_DAY_FORMAT);
 
-  //console.log('текущая дата', '2023-08-23')
-  //console.log(formatDateStart, '- эта дата ПОСЛЕ текущей?', dayjs().isAfter(dayjs(formatDateStart)))
-  //console.log(formatDateEnd, '- эта дата ДО текущей?', dayjs().isBefore(dayjs(formatDateEnd)))
   return dayjs().isAfter(dayjs(formatDateStart)) && dayjs().isBefore(dayjs(formatDateEnd));
 };
 
@@ -54,10 +49,27 @@ const isPresentPoint = (dateStart, dateEnd) => {
 // текущая ПОСЛЕ конца
 const isPastPoint = (dateEnd) => {
   const formatDateEnd = humanizePointDueDate(dateEnd, FILTER_DAY_FORMAT);
-  //console.log('дата Окончания меньше?', formatDateEnd)
-  //console.log('текущей даты', '2023-05-14')
-  //console.log(dayjs().isAfter(dayjs(formatDateEnd)))
   return dayjs().isAfter(dayjs(formatDateEnd));
 };
 
-export {humanizePointDueDate, calculateDiffTime, isFuturePoint, isPastPoint, isPresentPoint};
+/*ФУНКЦИИ СОРТИРОВКИ*/
+function sortPointsByDuration(pointA, pointB) { // По длительности
+  const pointADuration = dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom));
+  const pointBDuration = dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom));
+
+  return pointBDuration - pointADuration;
+}
+
+function sortPointsByPrice(pointA, pointB) { // По цене
+  const pointAPrice = pointA.basePrice;
+  const pointBPrice = pointB.basePrice;
+
+  return pointBPrice - pointAPrice;
+}
+
+function sortPointsByDate(pointA, pointB) { // По дате
+  return dayjs(pointB.dateFrom).diff(dayjs(pointA.dateFrom));
+}
+
+
+export {humanizePointDueDate, calculateDiffTime, isFuturePoint, isPastPoint, isPresentPoint, sortPointsByDuration, sortPointsByPrice, sortPointsByDate};
