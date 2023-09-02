@@ -104,7 +104,7 @@ export default class PointsListPresenter {
   #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
     this.#sourcedPoints = updateItem(this.#points, updatedPoint);
-    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#points);
+    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#offers);
   };
 
   #handleModeChange = () => {
@@ -126,6 +126,7 @@ export default class PointsListPresenter {
         this.#points = [...this.#sourcedPoints];
     }
     this.#currentSortType = sortType;
+    this.#renderSort();
   }
 
   #handleSortTypeChange = (sortType) => {
@@ -135,6 +136,5 @@ export default class PointsListPresenter {
     this.#sortPoints(sortType);
     this.#clearPointsList();
     this.#renderPointsList();
-    this.#renderSort();
   };
 }
