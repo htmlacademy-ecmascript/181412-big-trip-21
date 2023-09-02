@@ -1,6 +1,9 @@
 import {humanizePointDueDate} from '../utils/point.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_POINT = { // Это объект с описанием точки по умолчанию. ПУСТАЯ ТОЧКА/ФОРМА РЕДАКТИРОВАНИЯ
   type: 'flight',
@@ -165,6 +168,8 @@ export default class PointEditFormView extends AbstractStatefulView {
   #offers = null;
   #handleFormSubmit = null;
   #handleCollapseClick = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   // При создании экземляра класса Формы мы должны передать объект с данными точки,
   // а также массивы destinations и offers
@@ -190,10 +195,48 @@ export default class PointEditFormView extends AbstractStatefulView {
     this.element.querySelectorAll('.event__offer-checkbox')
       .forEach((input) => input.addEventListener('change', this.#offersChangeHandler));
 
+    this.#setDatepicker();
   }
 
   get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
     return createEditFormTemplate(this._state, this.#destinations, this.#offers);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
+  #setDatepicker() {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('[name=event-start-time]'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        maxDate: this._state.dateTo,
+        onChange: this.#dateFromChangeHandler,
+      }
+    );
+
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('[name=event-end-time]'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToChangeHandler,
+      }
+    );
   }
 
   // Метод для превращения данных точки в СОСТОЯНИЕ (точка + новые свойства)
@@ -232,6 +275,18 @@ export default class PointEditFormView extends AbstractStatefulView {
     checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(parseInt(element.dataset.id, 10)));
     this._setState({
       offers: updatedCheckedCheckboxes,
+    });
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
     });
   };
 
