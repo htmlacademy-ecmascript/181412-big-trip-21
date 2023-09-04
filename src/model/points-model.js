@@ -1,14 +1,16 @@
 import {getRandomPoint} from '../mock/points.js';
+import Observable from '../framework/observable.js';
 
 const POINT_COUNT = 9;
 
-export default class PointsModel {
+export default class PointsModel extends Observable {
   // Сформируем массив указанной длины из случайных точек моков
   #points = Array.from({length: POINT_COUNT}, getRandomPoint);
   #destinations = null;
   #offers = null;
 
   constructor({destinations, offers}) {
+    super();
     this.#destinations = destinations;
     this.#offers = offers;
   }
