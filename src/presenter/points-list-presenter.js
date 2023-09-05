@@ -3,7 +3,7 @@ import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
 import {render, RenderPosition, replace, remove} from '../framework/render.js';
-import {SortType} from '../const.js';
+import {SortType, UpdateType} from '../const.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
 
@@ -24,25 +24,26 @@ export default class PointsListPresenter {
   constructor({presenterContainerElement, pointsModel}) {
     this.#presenterContainerElement = presenterContainerElement; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
     this.#pointsModel = pointsModel;
+
+    this.#pointsModel.addObserver(this.#handleModeEvent);
   }
 
   get points() { // Получаем точки и сразу их сортируем в зависимости от установленного типа
     switch (this.#currentSortType) {
       case SortType.DAY:
         return [...this.#pointsModel.points].sort(sortPointsByDate);
-        break;
       case SortType.TIME:
         return [...this.#pointsModel.points].sort(sortPointsByDuration);
-        break;
       case SortType.PRICE:
         return [...this.#pointsModel.points].sort(sortPointsByPrice);
-        break;
     }
     return this.#pointsModel.points;
   }
+
   get destinations() {
     return this.#pointsModel.destinations;
   }
+
   get offers() {
     return this.#pointsModel.offers;
   }
@@ -51,7 +52,7 @@ export default class PointsListPresenter {
   #renderPoint({point}) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointListComponent.element,
-      onDataChange: this.#handlePointChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
     pointPresenter.init(point, this.destinations, this.offers);
@@ -109,9 +110,20 @@ export default class PointsListPresenter {
     this.#renderTrip();
   }
 
-  // Обработчик при обновлении точки
-  #handlePointChange = (updatedPoint) => {
-    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.destinations, this.offers);
+  #handleViewAction = (actionType, updateType, update) => {
+    console.log({actionType, updateType, update});
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  };
+
+  #handleModeEvent = (updateType, data) => {
+    console.log({updateType, data});
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
   };
 
   #handleModeChange = () => {
