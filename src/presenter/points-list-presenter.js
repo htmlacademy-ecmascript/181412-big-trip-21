@@ -2,8 +2,8 @@ import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
-import {render, RenderPosition, replace, remove} from '../framework/render.js';
-import {SortType, UpdateType} from '../const.js';
+import {render, RenderPosition, remove} from '../framework/render.js';
+import {SortType, UserAction} from '../const.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
 
@@ -61,19 +61,11 @@ export default class PointsListPresenter {
 
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ
   #renderSort() {
-    const prevSortComponent = this.#sortComponent;
-
     this.#sortComponent = new SortView({
       sortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
-    if(prevSortComponent){
-      replace(this.#sortComponent, prevSortComponent);
-      remove(prevSortComponent);
-    }else{
-      render(this.#sortComponent, this.#presenterContainerElement);
-    }
     render(this.#sortComponent, this.#presenterContainerElement, RenderPosition.AFTERBEGIN);
   }
 
@@ -82,48 +74,67 @@ export default class PointsListPresenter {
     render(this.#noPointComponent, this.#presenterContainerElement);
   }
 
-  // Отдельный приватный метод для отрисовки ВСЕХ ТОЧЕК
-  #renderPointsList() {
-    render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
-    // Вставляем ТОЧКИ, пользуясь приватным методом
-    for (let i = 0; i < this.points.length; i++) {
-      this.#renderPoint({point: this.points[i]});
-    }
-  }
+  #renderBoard() {
+    const pointCount = this.points.length;
 
-  #renderTrip() {
-    if(!this.points.length) {
+    if(!pointCount) {
       this.#renderNoPoints();
-      return;
+    } else {
+      this.#renderSort();
+      render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
+      for (let i = 0; i < this.points.length; i++) {
+        this.#renderPoint({point: this.points[i]});
+      }
     }
-    this.#renderSort();
-    this.#renderPointsList();
   }
 
-  // Отдельный приватный метод для очистки списка точек
-  #clearPointsList() {
+  // Отдельный приватный метод для ОЧИСТКИ списка точек
+  #clearBoard({resetSortType = false} = {}) {
     this.#allPointPresenters.forEach((presenter) => presenter.destroy());
     this.#allPointPresenters.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#noPointComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DEFAULT;
+    }
   }
 
   init() {
-    this.#renderTrip();
+    this.#renderBoard();
   }
 
+  // Метод вызывается, когда мы хотим выполнить какое-то действие, которое приводит к обновлению модели
   #handleViewAction = (actionType, updateType, update) => {
-    console.log({actionType, updateType, update});
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
+    //console.log({actionType, updateType, update});
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD_POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+    }
   };
 
   #handleModeEvent = (updateType, data) => {
-    console.log({updateType, data});
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case updateType.PATCH:
+        this.#allPointPresenters.get(data.id).init(data, this.destinations, this.offers); // Обновить ЧАСТЬ списка, например, одну задачу
+        break;
+      case updateType.MINOR:
+        this.#clearBoard(); // Обновили СПИСОК (например, удалили/добавили задачу)
+        this.#renderBoard();
+        break;
+      case updateType.MAJOR:
+        this.#clearBoard({resetSortType: true}); // Очистили доску, сбросили сортировку
+        this.#renderBoard();
+        break;
+    }
   };
 
   #handleModeChange = () => {
@@ -135,8 +146,7 @@ export default class PointsListPresenter {
       return;
     }
     this.#currentSortType = sortType;
-    this.#renderSort(); // Перерисовываем сортировку с новым типом
-    this.#clearPointsList();
-    this.#renderPointsList();
+    this.#clearBoard();
+    this.#renderBoard();
   };
 }

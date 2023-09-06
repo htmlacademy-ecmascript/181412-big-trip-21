@@ -112,7 +112,7 @@ export default class PointPresenter {
 
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       point,
     );
@@ -121,7 +121,7 @@ export default class PointPresenter {
 
   #handleFormCollapse = (point) => {
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       point,
     );
@@ -130,9 +130,9 @@ export default class PointPresenter {
 
   #handleFavoriteClick = () => {
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       {...this.#point, isFavorite: !this.#point.isFavorite}
-      );
+    );
   };
 }

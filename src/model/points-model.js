@@ -33,7 +33,7 @@ export default class PointsModel extends Observable {
     const index = this.#points.findIndex((point) => point.id === updatedPoint.id); // В массиве все точек ищем index той, у которой id совпадает с id обновленной точки
 
     if (index === -1) {
-      throw new Error('Can\'t update unexisting task'); // Если такой нет - выкидываем ошибку
+      throw new Error('Can\'t update unexisting point'); // Если такой нет - выкидываем ошибку
     }
 
     // Вставляем обновленную точку
@@ -62,7 +62,7 @@ export default class PointsModel extends Observable {
     const index = this.#points.findIndex((point) => point.id === updatedPoint.id); // В массиве все точек ищем index той, у которой id совпадает с id обновленной точки
 
     if (index === -1) {
-      throw new Error('Can\'t delete unexisting task');
+      throw new Error('Can\'t delete unexisting point');
     }
 
     // Удаляем обновленную точку
