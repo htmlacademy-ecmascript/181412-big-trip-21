@@ -2,11 +2,11 @@ import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
+import NewPointPresenter from './new-point-presenter.js';
 import {render, RenderPosition, remove} from '../framework/render.js';
 import {UpdateType, SortType, UserAction, FilterType} from '../const.js';
 import {filter} from '../utils/filter.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
-
 
 export default class PointsListPresenter {
   #pointListComponent = new PointListView(); // обертка ul для point, это класс
@@ -17,6 +17,7 @@ export default class PointsListPresenter {
   #filterModel = null;
 
   #allPointPresenters = new Map();
+  #newPointPresenter = null;
 
   #currentSortType = SortType.DAY; // дефолтное состояние сортировки
   #filterType = FilterType.EVERYTHING;
@@ -24,10 +25,16 @@ export default class PointsListPresenter {
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
   //  - модели с данными
-  constructor({presenterContainerElement, pointsModel, filterModel}) {
+  constructor({presenterContainerElement, pointsModel, filterModel, onNewTaskDestroy}) {
     this.#presenterContainerElement = presenterContainerElement; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
+
+    this.#newPointPresenter = new NewPointPresenter({
+      pointListContainer: this.#pointListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewTaskDestroy
+    });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -68,6 +75,12 @@ export default class PointsListPresenter {
     this.#allPointPresenters.set(point.id, pointPresenter);
   }
 
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newPointPresenter.init(this.destinations, this.offers);
+  }
+
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ
   #renderSort() {
     this.#sortComponent = new SortView({
@@ -102,6 +115,7 @@ export default class PointsListPresenter {
 
   // Отдельный приватный метод для ОЧИСТКИ списка точек
   #clearBoard({resetSortType = false} = {}) {
+    this.#newPointPresenter.destroy();
     this.#allPointPresenters.forEach((presenter) => presenter.destroy());
     this.#allPointPresenters.clear();
 
@@ -150,6 +164,7 @@ export default class PointsListPresenter {
   };
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#allPointPresenters.forEach((presenter) => presenter.resetView());
   };
 

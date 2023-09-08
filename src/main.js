@@ -7,6 +7,7 @@ import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import {render, RenderPosition} from './framework/render.js';
 import {getDestinations, getOffers} from './mock/points.js';
+import NewPointButtonView from './view/new-point-button-view.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const siteMainElement = document.querySelector('.page-main');
@@ -25,8 +26,22 @@ const tripInfoComponent = new TripInfoView(); // экземпляр класс �
 const pointListPresenter = new PointsListPresenter({
   presenterContainerElement: siteTripEventsElement,
   pointsModel,
-  filterModel
+  filterModel,
+  onNewTaskDestroy: handleNewTaskFormClose
 });
+
+const newPointButtonView = new NewPointButtonView({
+  onClick: handleNewPointButtonClick
+});
+
+function handleNewTaskFormClose() {
+  newPointButtonView.element.disabled = false;
+}
+
+function handleNewPointButtonClick() {
+  pointListPresenter.createPoint();
+  newPointButtonView.element.disabled = true;
+}
 
 // Отрисовываем элементы в Header:
 // сначала обертка section
@@ -35,6 +50,9 @@ render(tripInfoComponent, siteTripMainElement, RenderPosition.AFTERBEGIN);
 render(new TripInfoMainView(), tripInfoComponent.element);
 // потом в обертку section добавляем cost
 render(new TripInfoCostView(), tripInfoComponent.element);
+
+//добавляем кнопку
+render(newPointButtonView, siteTripMainElement);
 
 const filterPresenter = new FilterPresenter({
   filterContainer: siteFilterElement,

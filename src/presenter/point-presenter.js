@@ -49,6 +49,7 @@ export default class PointPresenter {
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
+      isNewPoint: false,
       onFormSubmit: this.#handleFormSubmit,
       onCollapseClick: this.#handleFormCollapse,
       onDeleteClick: this.#handleDeleteClick,

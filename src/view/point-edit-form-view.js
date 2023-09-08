@@ -15,9 +15,8 @@ const BLANK_POINT = { // Это объект с описанием точки п
   destination: ''
 };
 
-function createEditFormTemplate(point, destinationsList, OffersList) {
+function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint) {
   const {type, offers, basePrice, dateFrom, dateTo, destination} = point;
-  //console.log("point формы редактирования - ", point)
 
   const dateStart = humanizePointDueDate(dateFrom, FULL_DATE_EDIT_FORMAT); // например, 19/03/19
   const dateEnd = humanizePointDueDate(dateTo, FULL_DATE_EDIT_FORMAT); // например, 19/03/25
@@ -148,11 +147,8 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">
-                    <span class="visually-hidden">Open event</span>
-                  </button>
-
+                  <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+                  ${isNewPoint ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
                 </header>
                 <section class="event__details">
                 ${OffersBlockTemplate}
@@ -163,7 +159,6 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
 }
 
 export default class PointEditFormView extends AbstractStatefulView {
-  #point = null;
   #destinations = null;
   #offers = null;
   #handleFormSubmit = null;
@@ -171,10 +166,11 @@ export default class PointEditFormView extends AbstractStatefulView {
   #handleDeleteClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #isNewPoint = null;
 
   // При создании экземляра класса Формы мы должны передать объект с данными точки,
   // а также массивы destinations и offers
-  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onCollapseClick, onDeleteClick}) {
+  constructor({point = BLANK_POINT, destinations, offers, isNewPoint, onFormSubmit, onCollapseClick, onDeleteClick}) {
     super();
     // просто глубоко копируем пришедший объект с данными точки, обращаться this._state
     this._setState(PointEditFormView.parsePointToState(point));
@@ -184,25 +180,29 @@ export default class PointEditFormView extends AbstractStatefulView {
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCollapseClick = onCollapseClick;
     this.#handleDeleteClick = onDeleteClick;
+    this.#isNewPoint = isNewPoint;
 
     this._restoreHandlers();
   }
 
   _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#collapseClickHandler);
+    if (!this.#isNewPoint) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#collapseClickHandler);
+    }
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelectorAll('.event__type-input')
       .forEach((input) => input.addEventListener('change', this.#typeChangeHandler));
     this.element.querySelectorAll('.event__offer-checkbox')
       .forEach((input) => input.addEventListener('change', this.#offersChangeHandler));
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceChangeHandler);
 
     this.#setDatepicker();
   }
 
   get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
-    return createEditFormTemplate(this._state, this.#destinations, this.#offers);
+    return createEditFormTemplate(this._state, this.#destinations, this.#offers, this.#isNewPoint);
   }
 
   removeElement() {
@@ -287,6 +287,13 @@ export default class PointEditFormView extends AbstractStatefulView {
     });
   };
 
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: evt.target.value,
+    });
+  };
+
   #dateToChangeHandler = ([userDate]) => {
     this.updateElement({
       dateTo: userDate,
@@ -295,7 +302,6 @@ export default class PointEditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    //console.log('при отправке', this._state)
     this.#handleFormSubmit(PointEditFormView.parseStateToPoint(this._state)); // Сворачиваем форму в точку уже с !новыми! данными Состояния!
   };
 
