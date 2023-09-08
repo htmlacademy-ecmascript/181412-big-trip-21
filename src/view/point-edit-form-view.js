@@ -148,7 +148,7 @@ function createEditFormTemplate(point, destinationsList, OffersList) {
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__reset-btn" type="reset">Delete</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>
@@ -168,12 +168,13 @@ export default class PointEditFormView extends AbstractStatefulView {
   #offers = null;
   #handleFormSubmit = null;
   #handleCollapseClick = null;
+  #handleDeleteClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
   // При создании экземляра класса Формы мы должны передать объект с данными точки,
   // а также массивы destinations и offers
-  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onCollapseClick}) {
+  constructor({point = BLANK_POINT, destinations, offers, onFormSubmit, onCollapseClick, onDeleteClick}) {
     super();
     // просто глубоко копируем пришедший объект с данными точки, обращаться this._state
     this._setState(PointEditFormView.parsePointToState(point));
@@ -182,6 +183,7 @@ export default class PointEditFormView extends AbstractStatefulView {
     this.#offers = offers;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCollapseClick = onCollapseClick;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -189,6 +191,7 @@ export default class PointEditFormView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#collapseClickHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelectorAll('.event__type-input')
       .forEach((input) => input.addEventListener('change', this.#typeChangeHandler));
@@ -299,6 +302,11 @@ export default class PointEditFormView extends AbstractStatefulView {
   #collapseClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleCollapseClick(PointEditFormView.parseStateToPoint(this._state));
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(PointEditFormView.parseStateToPoint(this._state));
   };
 
   reset(point) {

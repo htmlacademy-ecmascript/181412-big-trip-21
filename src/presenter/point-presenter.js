@@ -51,6 +51,7 @@ export default class PointPresenter {
       offers: this.#offers,
       onFormSubmit: this.#handleFormSubmit,
       onCollapseClick: this.#handleFormCollapse,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     // Если точка или форма еще не были отрисованы, то только тогда создаем форму/точку
@@ -113,19 +114,25 @@ export default class PointPresenter {
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       point,
     );
     this.#replaceFormToPoint();
   };
 
-  #handleFormCollapse = (point) => {
+  #handleDeleteClick = (point) => {
     this.#handleDataChange(
-      UserAction.UPDATE_POINT,
+      UserAction.DELETE_POINT,
       UpdateType.MINOR,
       point,
     );
-    this.#replaceFormToPoint();
+  };
+
+  #handleFormCollapse = () => {
+    // При сворачивании формы в точку данные !не сохраняем
+    // this.#pointEditFormComponent.reset(this.#point);
+    // this.#replaceFormToPoint();
+    this.resetView();
   };
 
   #handleFavoriteClick = () => {

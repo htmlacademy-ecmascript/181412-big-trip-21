@@ -3,7 +3,7 @@ import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
 import {render, RenderPosition, remove} from '../framework/render.js';
-import {SortType, UserAction} from '../const.js';
+import {UpdateType, SortType, UserAction} from '../const.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
 
@@ -123,14 +123,14 @@ export default class PointsListPresenter {
 
   #handleModeEvent = (updateType, data) => {
     switch (updateType) {
-      case updateType.PATCH:
+      case UpdateType.PATCH:
         this.#allPointPresenters.get(data.id).init(data, this.destinations, this.offers); // Обновить ЧАСТЬ списка, например, одну задачу
         break;
-      case updateType.MINOR:
+      case UpdateType.MINOR:
         this.#clearBoard(); // Обновили СПИСОК (например, удалили/добавили задачу)
         this.#renderBoard();
         break;
-      case updateType.MAJOR:
+      case UpdateType.MAJOR:
         this.#clearBoard({resetSortType: true}); // Очистили доску, сбросили сортировку
         this.#renderBoard();
         break;
