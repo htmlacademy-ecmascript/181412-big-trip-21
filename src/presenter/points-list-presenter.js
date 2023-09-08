@@ -4,6 +4,7 @@ import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
 import {render, RenderPosition, remove} from '../framework/render.js';
 import {UpdateType, SortType, UserAction} from '../const.js';
+import {filter} from '../utils/filter.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
 
@@ -13,6 +14,7 @@ export default class PointsListPresenter {
   #noPointComponent = new NoPointView();
   #presenterContainerElement = null; // DOM-элемент, куда положим весь презентер
   #pointsModel = null;
+  #filterModel = null;
 
   #allPointPresenters = new Map();
 
@@ -21,23 +23,29 @@ export default class PointsListPresenter {
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
   //  - модели с данными
-  constructor({presenterContainerElement, pointsModel}) {
+  constructor({presenterContainerElement, pointsModel, filterModel}) {
     this.#presenterContainerElement = presenterContainerElement; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
 
-    this.#pointsModel.addObserver(this.#handleModeEvent);
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
-  get points() { // Получаем точки и сразу их сортируем в зависимости от установленного типа
+  get points() {
+    const filterType = this.#filterModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[filterType](points);
+
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [...this.#pointsModel.points].sort(sortPointsByDate);
+        return filteredPoints.sort(sortPointsByDate);
       case SortType.TIME:
-        return [...this.#pointsModel.points].sort(sortPointsByDuration);
+        return filteredPoints.sort(sortPointsByDuration);
       case SortType.PRICE:
-        return [...this.#pointsModel.points].sort(sortPointsByPrice);
+        return filteredPoints.sort(sortPointsByPrice);
     }
-    return this.#pointsModel.points;
+    return filteredPoints;
   }
 
   get destinations() {
@@ -97,7 +105,7 @@ export default class PointsListPresenter {
     remove(this.#noPointComponent);
 
     if (resetSortType) {
-      this.#currentSortType = SortType.DEFAULT;
+      this.#currentSortType = SortType.DAY;
     }
   }
 
@@ -121,7 +129,7 @@ export default class PointsListPresenter {
     }
   };
 
-  #handleModeEvent = (updateType, data) => {
+  #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#allPointPresenters.get(data.id).init(data, this.destinations, this.offers); // Обновить ЧАСТЬ списка, например, одну задачу
