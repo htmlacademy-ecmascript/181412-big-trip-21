@@ -2,6 +2,7 @@ import {humanizePointDueDate} from '../utils/point.js';
 import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -124,7 +125,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointDestinationObj ? pointDestinationObj.name : ''}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(pointDestinationObj ? pointDestinationObj.name : '')}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${DestinationListItemsTemplate}
                     </datalist>
@@ -132,10 +133,10 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart} ${timeStart}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart} ${timeStart}" required>
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd} ${timeEnd}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd} ${timeEnd}" required>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -143,7 +144,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                       <span class="visually-hidden">Price</span>
                       €
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
