@@ -1,12 +1,13 @@
 import TripInfoView from './view/trip-info-view.js'; // обертка section
 import TripInfoMainView from './view/trip-info-main-view.js'; // title
 import TripInfoCostView from './view/trip-info-cost-view.js'; // cost
-import FilterView from './view/filter-view.js';
 import PointsListPresenter from './presenter/points-list-presenter.js';
+import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
+import FilterModel from './model/filter-model.js';
 import {render, RenderPosition} from './framework/render.js';
-import {generateFilter} from './mock/filter.js';
 import {getDestinations, getOffers} from './mock/points.js';
+import NewPointButtonView from './view/new-point-button-view.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const siteMainElement = document.querySelector('.page-main');
@@ -19,11 +20,28 @@ const pointsModel = new PointsModel({
   offers: getOffers()
 });
 
+const filterModel = new FilterModel();
+
 const tripInfoComponent = new TripInfoView(); // экземпляр класс обертки section
 const pointListPresenter = new PointsListPresenter({
   presenterContainerElement: siteTripEventsElement,
   pointsModel,
+  filterModel,
+  onNewTaskDestroy: handleNewTaskFormClose
 });
+
+const newPointButtonView = new NewPointButtonView({
+  onClick: handleNewPointButtonClick
+});
+
+function handleNewTaskFormClose() {
+  newPointButtonView.element.disabled = false;
+}
+
+function handleNewPointButtonClick() {
+  pointListPresenter.createPoint();
+  newPointButtonView.element.disabled = true;
+}
 
 // Отрисовываем элементы в Header:
 // сначала обертка section
@@ -33,8 +51,14 @@ render(new TripInfoMainView(), tripInfoComponent.element);
 // потом в обертку section добавляем cost
 render(new TripInfoCostView(), tripInfoComponent.element);
 
-// Отрисовываем фильтры в Header:
-const filters = generateFilter(pointsModel.points);
-render(new FilterView({filters}), siteFilterElement, RenderPosition.BEFOREEND);
+//добавляем кнопку
+render(newPointButtonView, siteTripMainElement);
 
+const filterPresenter = new FilterPresenter({
+  filterContainer: siteFilterElement,
+  filterModel,
+  pointsModel
+});
+
+filterPresenter.init();
 pointListPresenter.init();

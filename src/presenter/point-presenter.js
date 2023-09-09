@@ -1,6 +1,7 @@
 import {render, replace, remove} from '../framework/render.js';
 import PointView from '../view/point-view.js';
 import PointEditFormView from '../view/point-edit-form-view.js';
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -48,8 +49,10 @@ export default class PointPresenter {
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
+      isNewPoint: false,
       onFormSubmit: this.#handleFormSubmit,
       onCollapseClick: this.#handleFormCollapse,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     // Если точка или форма еще не были отрисованы, то только тогда создаем форму/точку
@@ -110,16 +113,34 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (point) => {
-    this.#handleDataChange(point);
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      point,
+    );
     this.#replaceFormToPoint();
   };
 
-  #handleFormCollapse = (point) => {
-    this.#handleDataChange(point);
-    this.#replaceFormToPoint();
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
+  };
+
+  #handleFormCollapse = () => {
+    // При сворачивании формы в точку данные !не сохраняем
+    // this.#pointEditFormComponent.reset(this.#point);
+    // this.#replaceFormToPoint();
+    this.resetView();
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      {...this.#point, isFavorite: !this.#point.isFavorite}
+    );
   };
 }

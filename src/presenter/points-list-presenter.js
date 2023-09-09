@@ -2,139 +2,178 @@ import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
-import {render, RenderPosition, replace, remove} from '../framework/render.js';
-import {updateItem} from '../utils/common.js';
-import {SortType} from '../const.js';
+import NewPointPresenter from './new-point-presenter.js';
+import {render, RenderPosition, remove} from '../framework/render.js';
+import {UpdateType, SortType, UserAction, FilterType} from '../const.js';
+import {filter} from '../utils/filter.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
-
 
 export default class PointsListPresenter {
   #pointListComponent = new PointListView(); // обертка ul для point, это класс
   #sortComponent = null;
-  #noPointComponent = new NoPointView();
+  #noPointComponent = null;
   #presenterContainerElement = null; // DOM-элемент, куда положим весь презентер
   #pointsModel = null;
-
-  #points = [];
-  #destinations = [];
-  #offers = [];
+  #filterModel = null;
 
   #allPointPresenters = new Map();
+  #newPointPresenter = null;
 
   #currentSortType = SortType.DAY; // дефолтное состояние сортировки
-  #sourcedPoints = []; // сюда сохраним исходный массив
+  #filterType = FilterType.EVERYTHING;
 
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
   //  - модели с данными
-  constructor({presenterContainerElement, pointsModel}) {
+  constructor({presenterContainerElement, pointsModel, filterModel, onNewTaskDestroy}) {
     this.#presenterContainerElement = presenterContainerElement; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
+
+    this.#newPointPresenter = new NewPointPresenter({
+      pointListContainer: this.#pointListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewTaskDestroy
+    });
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
+  }
+
+  get points() {
+    this.#filterType = this.#filterModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.#filterType](points);
+
+    switch (this.#currentSortType) {
+      case SortType.DAY:
+        return filteredPoints.sort(sortPointsByDate);
+      case SortType.TIME:
+        return filteredPoints.sort(sortPointsByDuration);
+      case SortType.PRICE:
+        return filteredPoints.sort(sortPointsByPrice);
+    }
+    return filteredPoints;
+  }
+
+  get destinations() {
+    return this.#pointsModel.destinations;
+  }
+
+  get offers() {
+    return this.#pointsModel.offers;
   }
 
   // Отдельный приватный метод для отрисовки ОДНОЙ ТОЧКИ
   #renderPoint({point}) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointListComponent.element,
-      onDataChange: this.#handlePointChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
-    pointPresenter.init(point, this.#destinations, this.#offers);
+    pointPresenter.init(point, this.destinations, this.offers);
     this.#allPointPresenters.set(point.id, pointPresenter);
+  }
+
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newPointPresenter.init(this.destinations, this.offers);
   }
 
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ
   #renderSort() {
-    const prevSortComponent = this.#sortComponent;
-
     this.#sortComponent = new SortView({
       sortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
-    if(prevSortComponent){
-      replace(this.#sortComponent, prevSortComponent);
-      remove(prevSortComponent);
-    }else{
-      render(this.#sortComponent, this.#presenterContainerElement);
-    }
     render(this.#sortComponent, this.#presenterContainerElement, RenderPosition.AFTERBEGIN);
   }
 
   // Отдельный приватный метод для отрисовки ПУСТОГО ЛИСТА
   #renderNoPoints() {
+    this.#noPointComponent = new NoPointView({
+      filterType: this.#filterType,
+    });
     render(this.#noPointComponent, this.#presenterContainerElement);
   }
 
-  // Отдельный приватный метод для отрисовки ВСЕХ ТОЧЕК
-  #renderPointsList() {
-    render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
-    // Вставляем ТОЧКИ, пользуясь приватным методом
-    for (let i = 0; i < this.#points.length; i++) {
-      this.#renderPoint({point: this.#points[i]});
-    }
-  }
+  #renderBoard() {
+    const pointCount = this.points.length;
 
-  #renderTrip() {
-    if(!this.#points.length) {
+    if(!pointCount) {
       this.#renderNoPoints();
-      return;
+    } else {
+      this.#renderSort();
+      render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
+      for (let i = 0; i < this.points.length; i++) {
+        this.#renderPoint({point: this.points[i]});
+      }
     }
-    this.#renderSort();
-    this.#renderPointsList();
   }
 
-  // Отдельный приватный метод для очистки списка точек
-  #clearPointsList() {
+  // Отдельный приватный метод для ОЧИСТКИ списка точек
+  #clearBoard({resetSortType = false} = {}) {
+    this.#newPointPresenter.destroy();
     this.#allPointPresenters.forEach((presenter) => presenter.destroy());
     this.#allPointPresenters.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#noPointComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
 
   init() {
-    this.#points = [...this.#pointsModel.points]; // Это наш массив точек, которые мы отрисовываем
-    this.#destinations = [...this.#pointsModel.destinations];
-    this.#offers = [...this.#pointsModel.offers];
-
-    this.#sourcedPoints = [...this.#pointsModel.points]; // сохраняем исходный массив (для восстановлени исходного порядка сортировки)
-
-    this.#renderTrip();
+    this.#renderBoard();
   }
 
-  // Обработчик при обновлении точки
-  #handlePointChange = (updatedPoint) => {
-    this.#points = updateItem(this.#points, updatedPoint);
-    this.#sourcedPoints = updateItem(this.#points, updatedPoint);
-    this.#allPointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#offers);
+  // Метод вызывается, когда мы хотим выполнить какое-то действие, которое приводит к обновлению модели
+  #handleViewAction = (actionType, updateType, update) => {
+    //console.log({actionType, updateType, update});
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD_POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+    }
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#allPointPresenters.get(data.id).init(data, this.destinations, this.offers); // Обновить ЧАСТЬ списка, например, одну задачу
+        break;
+      case UpdateType.MINOR:
+        this.#clearBoard(); // Обновили СПИСОК (например, удалили/добавили задачу)
+        this.#renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearBoard({resetSortType: true}); // Очистили доску, сбросили сортировку
+        this.#renderBoard();
+        break;
+    }
   };
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#allPointPresenters.forEach((presenter) => presenter.resetView());
   };
-
-  #sortPoints (sortType) {
-    switch (sortType) {
-      case SortType.DAY:
-        this.#points.sort(sortPointsByDate);
-        break;
-      case SortType.TIME:
-        this.#points.sort(sortPointsByDuration);
-        break;
-      case SortType.PRICE:
-        this.#points.sort(sortPointsByPrice);
-        break;
-      default:
-        this.#points = [...this.#sourcedPoints];
-    }
-    this.#currentSortType = sortType;
-    this.#renderSort();
-  }
 
   #handleSortTypeChange = (sortType) => {
     if(this.#currentSortType === sortType) {
       return;
     }
-    this.#sortPoints(sortType);
-    this.#clearPointsList();
-    this.#renderPointsList();
+    this.#currentSortType = sortType;
+    this.#clearBoard();
+    this.#renderBoard();
   };
 }
