@@ -104,6 +104,23 @@ export default class PointPresenter {
     }
   }
 
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return
+    }
+
+    const resetFormState = () => {
+      this.#pointEditFormComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditFormComponent.shake(resetFormState);
+  }
+
   // Метод, что происходит по нажатию на Esc
   #escKeyDownHandler = (evt) => { // По нажатию на Esc происходит смена формы на точку
     if (evt.key === 'Escape') {
