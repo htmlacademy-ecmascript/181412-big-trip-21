@@ -16,12 +16,12 @@ export default class PointsModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#points = points.map(this.#adaptToClient); // Точки адаптируем, destinations и offers не надо
-      console.log('points', this.#points);
+      //console.log('points', this.#points);
 
       this.#destinations = await this.#pointsApiService.destinations;
-      console.log('destinations', this.#destinations);
+      //console.log('destinations', this.#destinations);
       this.#offers = await this.#pointsApiService.offers;
-      console.log('offers', this.#offers);
+      //console.log('offers', this.#offers);
     } catch (err) {
       this.#points = [];
       this.#destinations = [];
@@ -64,21 +64,27 @@ export default class PointsModel extends Observable {
   }
 
   // Метод для ОБНОВЛЕНИЯ точки
-  updatePoint(updateType, updatedPoint) {
-    const index = this.#points.findIndex((point) => point.id === updatedPoint.id); // В массиве все точек ищем index той, у которой id совпадает с id обновленной точки
+  async updatePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id); // В массиве все точек ищем index той, у которой id совпадает с id обновленной точки
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting point'); // Если такой нет - выкидываем ошибку
     }
 
     // Вставляем обновленную точку
-    this.#points = [
-      ...this.#points.slice(0, index), // часть ДО обновленной точки
-      updatedPoint, // Обновленная точка
-      ...this.#points.slice(index + 1) // часть ПОСЛЕ обноленной точки
-    ];
+    try {
+      const response = await this.#pointsApiService.updatePoint(update); // находим по id точку
+      const updatedPoint = this.#adaptToClient(response); // переводим в наш формат
 
-    this._notify(updateType, updatedPoint); // Уведомляем об изменении!!!
+      this.#points = [
+        ...this.#points.slice(0, index), // часть ДО обновленной точки
+        updatedPoint, // Заменяем обновленную точку
+        ...this.#points.slice(index + 1) // часть ПОСЛЕ обноленной точки
+      ];
+      this._notify(updateType, updatedPoint); // Уведомляем об изменении!!!
+    } catch (err) {
+      throw new Error('Can\'t update point');
+    }
   }
 
   // Метод для ДОБАВЛЕНИЯ точки
@@ -108,6 +114,4 @@ export default class PointsModel extends Observable {
 
     this._notify(updateType); // Уведомляем об изменении!!! Удаляемую точку не передаем, так как ее удалили
   }
-
-
 }

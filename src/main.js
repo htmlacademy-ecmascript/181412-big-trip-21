@@ -53,15 +53,18 @@ render(new TripInfoMainView(), tripInfoComponent.element);
 // потом в обертку section добавляем cost
 render(new TripInfoCostView(), tripInfoComponent.element);
 
-//добавляем кнопку
-render(newPointButtonView, siteTripMainElement);
-
 const filterPresenter = new FilterPresenter({
   filterContainer: siteFilterElement,
   filterModel,
   pointsModel
 });
 
+// Добавляем кнопку "New point", она заблокирована!!!!
+render(newPointButtonView, siteTripMainElement);
+
 filterPresenter.init();
 pointListPresenter.init();
-pointsModel.init();
+pointsModel.init()
+  .finally(() => {
+    newPointButtonView.element.disabled = false; // Кнопка "New point" разблокирует после ответа сервера
+  });
