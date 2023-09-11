@@ -276,7 +276,7 @@ export default class PointEditFormView extends AbstractStatefulView {
     evt.preventDefault();
     const checkedCheckboxes = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
     const updatedCheckedCheckboxes = [];
-    checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(parseInt(element.dataset.id, 10)));
+    checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(element.dataset.id, 10));
     this._setState({
       offers: updatedCheckedCheckboxes,
     });
@@ -291,7 +291,7 @@ export default class PointEditFormView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
     this.updateElement({
-      basePrice: evt.target.value,
+      basePrice: parseInt((evt.target.value),10),
     });
   };
 
