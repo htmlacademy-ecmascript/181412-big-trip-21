@@ -66,7 +66,8 @@ export default class PointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#pointEditFormComponent, prevPointEditFormComponent);
+      replace(this.#pointComponent, prevPointEditFormComponent); // Сомнения!!! 8.2.3
+      this.#mode = Mode.DEFAULT; // Сомнения!!! 8.2.3
     }
 
     remove(prevPointComponent);
@@ -82,6 +83,24 @@ export default class PointPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#pointEditFormComponent.reset(this.#point);
       this.#replaceFormToPoint();
+    }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditFormComponent.updateElement({
+        isSaving: true,
+        isDisabled: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditFormComponent.updateElement({
+        isDeleting: true,
+        isDisabled: true,
+      });
     }
   }
 
@@ -118,7 +137,7 @@ export default class PointPresenter {
       UpdateType.PATCH,
       point,
     );
-    this.#replaceFormToPoint();
+    //this.#replaceFormToPoint(); // Зачем убрали в 8.2.3??? Я не убирала
   };
 
   #handleDeleteClick = (point) => {
