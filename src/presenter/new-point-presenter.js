@@ -67,7 +67,7 @@ export default class NewPointPresenter {
         isDeleting: false,
       });
     };
-    this.#pointEditFormComponent.shake(resetFormState)
+    this.#pointEditFormComponent.shake(resetFormState);
   }
 
   #handleFormSubmit = (point) => {

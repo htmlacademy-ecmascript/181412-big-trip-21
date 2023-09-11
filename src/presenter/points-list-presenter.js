@@ -1,3 +1,4 @@
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import LoadingView from '../view/loading-view.js';
@@ -9,6 +10,10 @@ import {UpdateType, SortType, UserAction, FilterType} from '../const.js';
 import {filter} from '../utils/filter.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class PointsListPresenter {
   #pointListComponent = new PointListView(); // обертка ul для point, это класс
@@ -22,6 +27,11 @@ export default class PointsListPresenter {
 
   #allPointPresenters = new Map();
   #newPointPresenter = null;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   #currentSortType = SortType.DAY; // дефолтное состояние сортировки
   #filterType = FilterType.EVERYTHING;
@@ -147,7 +157,8 @@ export default class PointsListPresenter {
 
   // Метод вызывается, когда мы хотим выполнить какое-то действие, которое приводит к обновлению модели
   #handleViewAction = async (actionType, updateType, update) => {
-    //console.log({actionType, updateType, update});
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#allPointPresenters.get(update.id).setSaving();
@@ -174,6 +185,8 @@ export default class PointsListPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
