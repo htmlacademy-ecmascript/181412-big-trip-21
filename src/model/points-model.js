@@ -8,11 +8,42 @@ export default class PointsModel extends Observable {
   #points = Array.from({length: POINT_COUNT}, getRandomPoint);
   #destinations = null;
   #offers = null;
+  #pointsApiService = null;
 
-  constructor({destinations, offers}) {
+  constructor({pointsApiService, destinations, offers}) {
     super();
+    this.#pointsApiService = pointsApiService;
     this.#destinations = destinations;
     this.#offers = offers;
+
+    this.#pointsApiService.points.then((points) => {
+      console.log('Это points', points.map(this.#adaptToClient));
+    });
+
+    this.#pointsApiService.destinations.then((destinations) => {
+      console.log('Это destinations', destinations);
+    });
+
+    this.#pointsApiService.offers.then((offers) => {
+      console.log('Это offers', offers);
+    });
+  }
+
+  // метод для преобразования формат данных сервера ----> в наш формат точек
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 
   // метод для получения сформированного массива точек
