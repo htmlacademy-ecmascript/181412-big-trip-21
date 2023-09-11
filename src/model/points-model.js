@@ -1,32 +1,34 @@
-import {getRandomPoint} from '../mock/points.js';
 import Observable from '../framework/observable.js';
-
-const POINT_COUNT = 9;
+import {UpdateType} from '../const.js';
 
 export default class PointsModel extends Observable {
-  // Сформируем массив указанной длины из случайных точек моков
-  #points = Array.from({length: POINT_COUNT}, getRandomPoint);
-  #destinations = null;
-  #offers = null;
+  #points = [];
+  #destinations = [];
+  #offers = [];
   #pointsApiService = null;
 
-  constructor({pointsApiService, destinations, offers}) {
+  constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#destinations = destinations;
-    this.#offers = offers;
+  }
 
-    this.#pointsApiService.points.then((points) => {
-      console.log('Это points', points.map(this.#adaptToClient));
-    });
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient); // Точки адаптируем, destinations и offers не надо
+      console.log('points', this.#points);
 
-    this.#pointsApiService.destinations.then((destinations) => {
-      console.log('Это destinations', destinations);
-    });
+      this.#destinations = await this.#pointsApiService.destinations;
+      console.log('destinations', this.#destinations);
+      this.#offers = await this.#pointsApiService.offers;
+      console.log('offers', this.#offers);
+    } catch (err) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+    }
 
-    this.#pointsApiService.offers.then((offers) => {
-      console.log('Это offers', offers);
-    });
+    this._notify(UpdateType.INIT);
   }
 
   // метод для преобразования формат данных сервера ----> в наш формат точек
@@ -46,15 +48,17 @@ export default class PointsModel extends Observable {
     return adaptedPoint;
   }
 
-  // метод для получения сформированного массива точек
+  // геттер для получения points
   get points() {
     return this.#points;
   }
 
+  // геттер для получения destinations
   get destinations() {
     return this.#destinations;
   }
 
+  // геттер для получения offers
   get offers() {
     return this.#offers;
   }

@@ -1,5 +1,6 @@
 import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
+import LoadingView from '../view/loading-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
@@ -8,13 +9,16 @@ import {UpdateType, SortType, UserAction, FilterType} from '../const.js';
 import {filter} from '../utils/filter.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
+
 export default class PointsListPresenter {
   #pointListComponent = new PointListView(); // обертка ul для point, это класс
   #sortComponent = null;
   #noPointComponent = null;
+  #loadingComponent = new LoadingView();
   #presenterContainerElement = null; // DOM-элемент, куда положим весь презентер
   #pointsModel = null;
   #filterModel = null;
+  #isLoading = true;
 
   #allPointPresenters = new Map();
   #newPointPresenter = null;
@@ -97,10 +101,20 @@ export default class PointsListPresenter {
       filterType: this.#filterType,
     });
     render(this.#noPointComponent, this.#presenterContainerElement);
+    remove(this.#loadingComponent);
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#presenterContainerElement);
   }
 
   #renderBoard() {
     const pointCount = this.points.length;
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     if(!pointCount) {
       this.#renderNoPoints();
@@ -158,6 +172,11 @@ export default class PointsListPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({resetSortType: true}); // Очистили доску, сбросили сортировку
+        this.#renderBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderBoard();
         break;
     }
