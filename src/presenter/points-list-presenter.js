@@ -1,5 +1,7 @@
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
+import LoadingView from '../view/loading-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
@@ -8,16 +10,28 @@ import {UpdateType, SortType, UserAction, FilterType} from '../const.js';
 import {filter} from '../utils/filter.js';
 import {sortPointsByDuration, sortPointsByPrice, sortPointsByDate} from '../utils/point.js';
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 export default class PointsListPresenter {
   #pointListComponent = new PointListView(); // обертка ul для point, это класс
   #sortComponent = null;
   #noPointComponent = null;
+  #loadingComponent = new LoadingView();
   #presenterContainerElement = null; // DOM-элемент, куда положим весь презентер
   #pointsModel = null;
   #filterModel = null;
+  #isLoading = true;
 
   #allPointPresenters = new Map();
   #newPointPresenter = null;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   #currentSortType = SortType.DAY; // дефолтное состояние сортировки
   #filterType = FilterType.EVERYTHING;
@@ -97,10 +111,20 @@ export default class PointsListPresenter {
       filterType: this.#filterType,
     });
     render(this.#noPointComponent, this.#presenterContainerElement);
+    remove(this.#loadingComponent);
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#presenterContainerElement);
   }
 
   #renderBoard() {
     const pointCount = this.points.length;
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     if(!pointCount) {
       this.#renderNoPoints();
@@ -132,19 +156,37 @@ export default class PointsListPresenter {
   }
 
   // Метод вызывается, когда мы хотим выполнить какое-то действие, которое приводит к обновлению модели
-  #handleViewAction = (actionType, updateType, update) => {
-    //console.log({actionType, updateType, update});
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#allPointPresenters.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#allPointPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (err) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#allPointPresenters.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (err) {
+          this.#allPointPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -158,6 +200,11 @@ export default class PointsListPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({resetSortType: true}); // Очистили доску, сбросили сортировку
+        this.#renderBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderBoard();
         break;
     }

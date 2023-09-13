@@ -6,8 +6,8 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import {render, RenderPosition} from './framework/render.js';
-import {getDestinations, getOffers} from './mock/points.js';
 import NewPointButtonView from './view/new-point-button-view.js';
+import PointsApiService from './point-api-service.js';
 
 const siteHeaderElement = document.querySelector('.page-header');
 const siteMainElement = document.querySelector('.page-main');
@@ -15,9 +15,11 @@ const siteTripMainElement = siteHeaderElement.querySelector('.trip-main');
 const siteFilterElement = siteHeaderElement.querySelector('.trip-controls__filters');
 const siteTripEventsElement = siteMainElement.querySelector('.trip-events');
 
+const AUTHORIZATION = 'Basic qwertyqwerty';
+const END_POINT = 'https://21.objects.pages.academy/big-trip';
+
 const pointsModel = new PointsModel({
-  destinations: getDestinations(),
-  offers: getOffers()
+  pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
 });
 
 const filterModel = new FilterModel();
@@ -51,14 +53,18 @@ render(new TripInfoMainView(), tripInfoComponent.element);
 // потом в обертку section добавляем cost
 render(new TripInfoCostView(), tripInfoComponent.element);
 
-//добавляем кнопку
-render(newPointButtonView, siteTripMainElement);
-
 const filterPresenter = new FilterPresenter({
   filterContainer: siteFilterElement,
   filterModel,
   pointsModel
 });
 
+// Добавляем кнопку "New point", она заблокирована!!!!
+render(newPointButtonView, siteTripMainElement);
+
 filterPresenter.init();
 pointListPresenter.init();
+pointsModel.init()
+  .finally(() => {
+    newPointButtonView.element.disabled = false; // Кнопка "New point" разблокирует после ответа сервера
+  });

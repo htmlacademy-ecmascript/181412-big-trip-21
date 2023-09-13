@@ -10,14 +10,14 @@ const BLANK_POINT = { // Это объект с описанием точки п
   type: 'flight',
   offers: [],
   basePrice: 0,
-  dateFrom: null,
-  dateTo: null,
+  dateFrom: new Date(),
+  dateTo: new Date(),
   isFavorite: false,
   destination: ''
 };
 
 function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint) {
-  const {type, offers, basePrice, dateFrom, dateTo, destination} = point;
+  const {type, offers, basePrice, dateFrom, dateTo, destination, isSaving, isDeleting, isDisabled} = point;
 
   const dateStart = humanizePointDueDate(dateFrom, FULL_DATE_EDIT_FORMAT); // например, 19/03/19
   const dateEnd = humanizePointDueDate(dateTo, FULL_DATE_EDIT_FORMAT); // например, 19/03/25
@@ -27,9 +27,9 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   // DESTINATIONS
   // Сначала получаем из массива объектов ВСЕХ destinations ТОЛЬКО ТОТ объект, что указан в точке
   const pointDestinationObj = destinationsList.find((item) => item.id === destination);
-  // Функиция для отрисовывания картинок
+  // Функция для отрисовывания картинок
   function createDestinationPicturesTemplate() {
-    if(pointDestinationObj) { // Если destination есть, то отрисовываем картинки
+    if(pointDestinationObj?.pictures.length > 0) { // Если у destination есть картинки, то отрисовываем их
       return pointDestinationObj.pictures.map((picture) =>
         `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
       ).join('');
@@ -38,7 +38,8 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   const destinationPicturesTemplate = createDestinationPicturesTemplate();
   // Функция для отрисовывания БЛОКА DESTINATIONS
   function createDestinationsBlockTemplate() {
-    if (pointDestinationObj) {
+    // Первое условие - для пустой точки, второе - для destination без description
+    if (destination !== '' && pointDestinationObj.description !== '') {
       return `<section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
               <p class="event__destination-description">${pointDestinationObj.description}</p>
@@ -103,6 +104,16 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   }
   const DestinationListItemsTemplate = createDestinationListItemsTemplate();
 
+  // Кнопки Save(New Point) и Delete(Edit Form)
+  function createResetBtnTemplate() {
+    if (isNewPoint) {
+      return `<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>Cancel</button>`;
+    } else {
+      return `<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>`;
+    }
+  }
+  const ResetBtnTemplate = createResetBtnTemplate();
+
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -147,8 +158,8 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                     <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+                  ${ResetBtnTemplate}
                   ${isNewPoint ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
                 </header>
                 <section class="event__details">
@@ -247,12 +258,20 @@ export default class PointEditFormView extends AbstractStatefulView {
   static parsePointToState(point) {
     return {
       ...point,
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
     };
   }
 
   // Метод для превращения данных состояния в ТОЧКУ (точка - удалили лишние новые свойства)
   static parseStateToPoint(state) {
     const point = {...state};
+
+    delete point.isSaving;
+    delete point.isDeleting;
+    delete point.isDisabled;
+
     return point;
   }
 
@@ -276,7 +295,7 @@ export default class PointEditFormView extends AbstractStatefulView {
     evt.preventDefault();
     const checkedCheckboxes = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
     const updatedCheckedCheckboxes = [];
-    checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(parseInt(element.dataset.id, 10)));
+    checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(element.dataset.id, 10));
     this._setState({
       offers: updatedCheckedCheckboxes,
     });
@@ -291,7 +310,7 @@ export default class PointEditFormView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
     this.updateElement({
-      basePrice: evt.target.value,
+      basePrice: parseInt((evt.target.value),10),
     });
   };
 
