@@ -304,7 +304,6 @@ main {
     cursor: default; }
   .trip-filters__filter-input:disabled + .trip-filters__filter-label {
     opacity: 0.4;
-    color: red /*Временно!*/;
     cursor: default; }
 
 .trip-events {
@@ -395,7 +394,7 @@ main {
               transform: translateY(-50%); }
 
 .trip-sort__input:disabled + .trip-sort__btn {
-  opacity: 0.6; color: red;}
+  opacity: 0.6;}
 .trip-sort__input:disabled + .trip-sort__btn:hover {
   color: #b4b4b4;
   cursor: default; }
@@ -671,6 +670,11 @@ main {
     text-align: center; }
   .event__input--price {
     width: 66px; }
+
+.shake .event__field-group--price:has(.event__input--price[value="0"]) {border-bottom: 1px solid red}
+.shake .event__field-group--destination:has(.event__input--destination[value=""]) {border-bottom: 1px solid red}
+.shake .event__field-group--destination:has(.event__input--destination[value=""]) {border-bottom: 1px solid red}
+.shake .event__field-group--time:has(.event__input--time[value=" "]) {border-bottom: 1px solid red}
 
 .event__save-btn {
   margin-right: 18px; }

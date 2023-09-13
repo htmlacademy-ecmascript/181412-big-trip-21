@@ -10,8 +10,8 @@ const BLANK_POINT = { // Это объект с описанием точки п
   type: 'flight',
   offers: [],
   basePrice: 0,
-  dateFrom: null,
-  dateTo: null,
+  dateFrom: new Date(),
+  dateTo: new Date(),
   isFavorite: false,
   destination: ''
 };
