@@ -126,7 +126,7 @@ export default class PointsListPresenter {
       return;
     }
 
-    if(!pointCount) {
+    if (!pointCount) {
       this.#renderNoPoints();
     } else {
       this.#renderSort();
@@ -216,7 +216,7 @@ export default class PointsListPresenter {
   };
 
   #handleSortTypeChange = (sortType) => {
-    if(this.#currentSortType === sortType) {
+    if (this.#currentSortType === sortType) {
       return;
     }
     this.#currentSortType = sortType;

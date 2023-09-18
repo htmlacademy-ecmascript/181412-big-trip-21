@@ -40,7 +40,7 @@ export default class NewPointPresenter {
   }
 
   destroy() {
-    if(this.#pointEditFormComponent === null) {
+    if (this.#pointEditFormComponent === null) {
       return;
     }
 
