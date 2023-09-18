@@ -40,7 +40,7 @@ export default class FilterPresenter {
       onFilterTypeChange: this.#handleFilterTypeChange
     });
 
-    if(prevFilterComponent === null) {
+    if (prevFilterComponent === null) {
       render(this.#filterComponent, this.#filterContainer, RenderPosition.BEFOREEND);
       return;
     }

@@ -23,7 +23,7 @@ function createPointTemplate(point, destinationsList, OffersList) {
 
   const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
-    if(isChecked) {
+    if (isChecked) {
       return `<li class="event__offer">
                 <span class="event__offer-title">${offer.title}</span>
                 +€&nbsp;

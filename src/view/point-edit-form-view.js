@@ -10,10 +10,10 @@ const BLANK_POINT = { // Это объект с описанием точки п
   type: 'flight',
   offers: [],
   basePrice: 0,
-  dateFrom: new Date(),
-  dateTo: new Date(),
+  dateFrom: '',
+  dateTo: '',
   isFavorite: false,
-  destination: ''
+  destination: '',
 };
 
 function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint) {
@@ -38,11 +38,10 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   const destinationPicturesTemplate = createDestinationPicturesTemplate();
   // Функция для отрисовывания БЛОКА DESTINATIONS
   function createDestinationsBlockTemplate() {
-    // Первое условие - для пустой точки, второе - для destination без description
-    if (destination !== '' && pointDestinationObj.description !== '') {
+    if (destination !== '' && typeof pointDestinationObj !== 'undefined' && pointDestinationObj.description !== '') {
       return `<section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${pointDestinationObj.description}</p>
+              <p class="event__destination-description">${pointDestinationObj?.description}</p>
               <div class="event__photos-container">
                 <div class="event__photos-tape">${destinationPicturesTemplate}</div>
               </div>
@@ -89,7 +88,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   function createEventTypeListItemsTemplate() {
     return OffersList.map((offer) =>
       `<div class="event__type-item">
-         <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}">
+         <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type === type ? 'checked' : ''}>
          <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-1">${offer.type}</label>
        </div>`
     ).join('');
@@ -234,22 +233,29 @@ export default class PointEditFormView extends AbstractStatefulView {
     this.#datepickerFrom = flatpickr(
       this.element.querySelector('[name=event-start-time]'),
       {
-        enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
+        onClose: this.#dateFromChangeHandler,
+        enableTime: true,
         maxDate: this._state.dateTo,
-        onChange: this.#dateFromChangeHandler,
+        'time_24hr': true,
+        locale: {
+          firstDayOfWeek: 1
+        }
       }
     );
-
     this.#datepickerTo = flatpickr(
       this.element.querySelector('[name=event-end-time]'),
       {
-        enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
+        onClose: this.#dateToChangeHandler,
+        enableTime: true,
         minDate: this._state.dateFrom,
-        onChange: this.#dateToChangeHandler,
+        'time_24hr': true,
+        locale: {
+          firstDayOfWeek: 1
+        }
       }
     );
   }
