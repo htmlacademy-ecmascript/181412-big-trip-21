@@ -3,6 +3,7 @@ import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import LoadingView from '../view/loading-view.js';
 import SortView from '../view/sort-view.js';
+import HeaderInfoView from '../view/header-info-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import {render, RenderPosition, remove} from '../framework/render.js';
@@ -20,7 +21,9 @@ export default class PointsListPresenter {
   #sortComponent = null;
   #noPointComponent = null;
   #loadingComponent = new LoadingView();
-  #presenterContainerElement = null; // DOM-элемент, куда положим весь презентер
+  #headerInfoComponent = null;
+  #presenterContainer = null; // DOM-элемент, куда положим весь презентер
+  #headerInfoContainer = null;
   #pointsModel = null;
   #filterModel = null;
   #isLoading = true;
@@ -39,8 +42,9 @@ export default class PointsListPresenter {
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
   //  - модели с данными
-  constructor({presenterContainerElement, pointsModel, filterModel, onNewTaskDestroy}) {
-    this.#presenterContainerElement = presenterContainerElement; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
+  constructor({presenterContainer, headerInfoContainer, pointsModel, filterModel, onNewTaskDestroy}) {
+    this.#presenterContainer = presenterContainer; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
+    this.#headerInfoContainer = headerInfoContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
@@ -102,7 +106,7 @@ export default class PointsListPresenter {
       onSortTypeChange: this.#handleSortTypeChange
     });
 
-    render(this.#sortComponent, this.#presenterContainerElement, RenderPosition.AFTERBEGIN);
+    render(this.#sortComponent, this.#presenterContainer, RenderPosition.AFTERBEGIN);
   }
 
   // Отдельный приватный метод для отрисовки ПУСТОГО ЛИСТА
@@ -110,12 +114,12 @@ export default class PointsListPresenter {
     this.#noPointComponent = new NoPointView({
       filterType: this.#filterType,
     });
-    render(this.#noPointComponent, this.#presenterContainerElement);
+    render(this.#noPointComponent, this.#presenterContainer);
     remove(this.#loadingComponent);
   }
 
   #renderLoading() {
-    render(this.#loadingComponent, this.#presenterContainerElement);
+    render(this.#loadingComponent, this.#presenterContainer);
   }
 
   #renderBoard() {
@@ -130,11 +134,18 @@ export default class PointsListPresenter {
       this.#renderNoPoints();
     } else {
       this.#renderSort();
-      render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
+
+      render(this.#pointListComponent, this.#presenterContainer); // вставили обертку ul
       for (let i = 0; i < this.points.length; i++) {
         this.#renderPoint({point: this.points[i]});
       }
+      this.#renderHeaderInfo();
     }
+  }
+
+  #renderHeaderInfo() {
+    this.#headerInfoComponent = new HeaderInfoView(this.points, this.destinations, this.offers);
+    render(this.#headerInfoComponent, this.#headerInfoContainer, RenderPosition.AFTERBEGIN);
   }
 
   // Отдельный приватный метод для ОЧИСТКИ списка точек
@@ -145,6 +156,7 @@ export default class PointsListPresenter {
 
     remove(this.#sortComponent);
     remove(this.#noPointComponent);
+    remove(this.#headerInfoComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;

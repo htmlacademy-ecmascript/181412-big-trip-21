@@ -68,7 +68,7 @@ function sortPointsByPrice(pointA, pointB) { // По цене
 }
 
 function sortPointsByDate(pointA, pointB) { // По дате
-  return dayjs(pointB.dateFrom).diff(dayjs(pointA.dateFrom));
+  return dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 }
 
 

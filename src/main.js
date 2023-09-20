@@ -1,21 +1,17 @@
-import TripInfoView from './view/trip-info-view.js'; // обертка section
-import TripInfoMainView from './view/trip-info-main-view.js'; // title
-import TripInfoCostView from './view/trip-info-cost-view.js'; // cost
 import PointsListPresenter from './presenter/points-list-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
-import {render, RenderPosition} from './framework/render.js';
+import {render} from './framework/render.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import PointsApiService from './point-api-service.js';
 
-const siteHeaderElement = document.querySelector('.page-header');
-const siteMainElement = document.querySelector('.page-main');
-const siteTripMainElement = siteHeaderElement.querySelector('.trip-main');
-const siteFilterElement = siteHeaderElement.querySelector('.trip-controls__filters');
-const siteTripEventsElement = siteMainElement.querySelector('.trip-events');
+const headerInfoContainerElement = document.querySelector('.trip-main'); // Header Container
+const filterContainerElement = document.querySelector('.trip-controls__filters');
+const tripEventsContainerElement = document.querySelector('.trip-events');
 
-const AUTHORIZATION = 'Basic qwertyqwerty';
+
+const AUTHORIZATION = 'Basic qwertyqwertysdf';
 const END_POINT = 'https://21.objects.pages.academy/big-trip';
 
 const pointsModel = new PointsModel({
@@ -23,48 +19,38 @@ const pointsModel = new PointsModel({
 });
 
 const filterModel = new FilterModel();
+const newPointButtonComponent = new NewPointButtonView({
+  onClick: handleNewPointButtonClick
+});
 
-const tripInfoComponent = new TripInfoView(); // экземпляр класс обертки section
 const pointListPresenter = new PointsListPresenter({
-  presenterContainerElement: siteTripEventsElement,
+  presenterContainer: tripEventsContainerElement,
+  headerInfoContainer: headerInfoContainerElement,
   pointsModel,
   filterModel,
   onNewTaskDestroy: handleNewTaskFormClose
 });
 
-const newPointButtonView = new NewPointButtonView({
-  onClick: handleNewPointButtonClick
-});
-
-function handleNewTaskFormClose() {
-  newPointButtonView.element.disabled = false;
-}
-
-function handleNewPointButtonClick() {
-  pointListPresenter.createPoint();
-  newPointButtonView.element.disabled = true;
-}
-
-// Отрисовываем элементы в Header:
-// сначала обертка section
-render(tripInfoComponent, siteTripMainElement, RenderPosition.AFTERBEGIN);
-// в обертку section добавляем title
-render(new TripInfoMainView(), tripInfoComponent.element);
-// потом в обертку section добавляем cost
-render(new TripInfoCostView(), tripInfoComponent.element);
 
 const filterPresenter = new FilterPresenter({
-  filterContainer: siteFilterElement,
+  filterContainer: filterContainerElement,
   filterModel,
   pointsModel
 });
 
 // Добавляем кнопку "New point", она заблокирована!!!!
-render(newPointButtonView, siteTripMainElement);
-
+render(newPointButtonComponent, headerInfoContainerElement);
 filterPresenter.init();
 pointListPresenter.init();
 pointsModel.init()
   .finally(() => {
-    newPointButtonView.element.disabled = false; // Кнопка "New point" разблокирует после ответа сервера
+    newPointButtonComponent.element.disabled = false; // Кнопка "New point" разблокирует после ответа сервера
   });
+
+function handleNewTaskFormClose() {
+  newPointButtonComponent.element.disabled = false;
+}
+function handleNewPointButtonClick() {
+  pointListPresenter.createPoint();
+  newPointButtonComponent.element.disabled = true;
+}

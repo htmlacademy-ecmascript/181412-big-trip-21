@@ -30,9 +30,15 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   // Функция для отрисовывания картинок
   function createDestinationPicturesTemplate() {
     if(pointDestinationObj?.pictures.length > 0) { // Если у destination есть картинки, то отрисовываем их
-      return pointDestinationObj.pictures.map((picture) =>
+      const pictures = pointDestinationObj.pictures.map((picture) =>
         `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
       ).join('');
+
+      return `<div class="event__photos-container">
+                <div class="event__photos-tape">${pictures}</div>
+              </div>`;
+    } else {
+      return '';
     }
   }
   const destinationPicturesTemplate = createDestinationPicturesTemplate();
@@ -42,19 +48,17 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
       return `<section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
               <p class="event__destination-description">${pointDestinationObj?.description}</p>
-              <div class="event__photos-container">
-                <div class="event__photos-tape">${destinationPicturesTemplate}</div>
-              </div>
+              ${destinationPicturesTemplate}
             </section>`;
     } else {
       return '';
     }
   }
-  const DestinationsBlockTemplate = createDestinationsBlockTemplate();
+  const destinationsBlockTemplate = createDestinationsBlockTemplate();
 
   // OFFERS
   // Сначала получаем из массива объектов ВСЕХ offers ТОЛЬКО ТОТ объект, что указан в точке
-  const typeOffersObj = OffersList.find((item) => item.type === type);
+  const typeOffersObj = OffersList.find((offer) => offer.type === type);
   // Функция для отрисовки инпутов офферов (чекнутых или нет)
   const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
@@ -81,7 +85,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
       return '';
     }
   }
-  const OffersBlockTemplate = createOffersBlockTemplate();
+  const offersBlockTemplate = createOffersBlockTemplate();
 
   //////////////////////////
   // Event type list
@@ -111,7 +115,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
       return `<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>`;
     }
   }
-  const ResetBtnTemplate = createResetBtnTemplate();
+  const resetBtnTemplate = createResetBtnTemplate();
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -158,12 +162,12 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
-                  ${ResetBtnTemplate}
+                  ${resetBtnTemplate}
                   ${isNewPoint ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
                 </header>
                 <section class="event__details">
-                ${OffersBlockTemplate}
-                ${DestinationsBlockTemplate}
+                ${offersBlockTemplate}
+                ${destinationsBlockTemplate}
                 </section>
               </form>
             </li>`;
@@ -235,7 +239,7 @@ export default class PointEditFormView extends AbstractStatefulView {
       {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
-        onClose: this.#dateFromChangeHandler,
+        onChange: this.#dateFromChangeHandler,
         enableTime: true,
         maxDate: this._state.dateTo,
         'time_24hr': true,
@@ -249,7 +253,7 @@ export default class PointEditFormView extends AbstractStatefulView {
       {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
-        onClose: this.#dateToChangeHandler,
+        onChange: this.#dateToChangeHandler,
         enableTime: true,
         minDate: this._state.dateFrom,
         'time_24hr': true,
@@ -299,11 +303,11 @@ export default class PointEditFormView extends AbstractStatefulView {
 
   #offersChangeHandler = (evt) => {
     evt.preventDefault();
-    const checkedCheckboxes = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
-    const updatedCheckedCheckboxes = [];
-    checkedCheckboxes.map((element) => updatedCheckedCheckboxes.push(element.dataset.id, 10));
+    const checkedOffers = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
+    const updatedCheckedOffers = [];
+    checkedOffers.map((element) => updatedCheckedOffers.push(element.dataset.id, 10));
     this._setState({
-      offers: updatedCheckedCheckboxes,
+      offers: updatedCheckedOffers,
     });
   };
 
