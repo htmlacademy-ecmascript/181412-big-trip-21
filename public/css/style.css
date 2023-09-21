@@ -671,11 +671,6 @@ main {
   .event__input--price {
     width: 66px; }
 
-.shake .event__input--price[value="0"] {background: pink}
-.shake .event__input--destination[value=""] {background: pink}
-.shake .event__input--destination[value=""] {background: pink}
-.shake .event__input--time[value=" "] {background: pink}
-
 .event__save-btn {
   margin-right: 18px; }
 
