@@ -2,7 +2,9 @@ import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import LoadingView from '../view/loading-view.js';
+import ErrorView from '../view/error-view.js';
 import SortView from '../view/sort-view.js';
+import HeaderInfoView from '../view/header-info-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import {render, RenderPosition, remove} from '../framework/render.js';
@@ -20,10 +22,14 @@ export default class PointsListPresenter {
   #sortComponent = null;
   #noPointComponent = null;
   #loadingComponent = new LoadingView();
-  #presenterContainerElement = null; // DOM-элемент, куда положим весь презентер
+  #errorComponent = new ErrorView();
+  #headerInfoComponent = null;
+  #presenterContainer = null; // DOM-элемент, куда положим весь презентер
+  #headerInfoContainer = null;
   #pointsModel = null;
   #filterModel = null;
   #isLoading = true;
+  #isError = null;
 
   #allPointPresenters = new Map();
   #newPointPresenter = null;
@@ -39,10 +45,13 @@ export default class PointsListPresenter {
   // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
   //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
   //  - модели с данными
-  constructor({presenterContainerElement, pointsModel, filterModel, onNewTaskDestroy}) {
-    this.#presenterContainerElement = presenterContainerElement; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
+  constructor({presenterContainer, headerInfoContainer, pointsModel, filterModel, onNewTaskDestroy}) {
+    this.#presenterContainer = presenterContainer; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
+    this.#headerInfoContainer = headerInfoContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
+
+    this.#isError = this.#pointsModel.error;
 
     this.#newPointPresenter = new NewPointPresenter({
       pointListContainer: this.#pointListComponent.element,
@@ -93,6 +102,10 @@ export default class PointsListPresenter {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init(this.destinations, this.offers);
+
+    // if(this.#noPointComponent !== null) {
+    //   remove(this.#noPointComponent);
+    // }
   }
 
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ
@@ -102,7 +115,7 @@ export default class PointsListPresenter {
       onSortTypeChange: this.#handleSortTypeChange
     });
 
-    render(this.#sortComponent, this.#presenterContainerElement, RenderPosition.AFTERBEGIN);
+    render(this.#sortComponent, this.#presenterContainer, RenderPosition.AFTERBEGIN);
   }
 
   // Отдельный приватный метод для отрисовки ПУСТОГО ЛИСТА
@@ -110,12 +123,16 @@ export default class PointsListPresenter {
     this.#noPointComponent = new NoPointView({
       filterType: this.#filterType,
     });
-    render(this.#noPointComponent, this.#presenterContainerElement);
+    render(this.#noPointComponent, this.#presenterContainer);
     remove(this.#loadingComponent);
   }
 
   #renderLoading() {
-    render(this.#loadingComponent, this.#presenterContainerElement);
+    render(this.#loadingComponent, this.#presenterContainer);
+  }
+
+  #renderError() {
+    render(this.#errorComponent, this.#presenterContainer);
   }
 
   #renderBoard() {
@@ -126,15 +143,28 @@ export default class PointsListPresenter {
       return;
     }
 
-    if (!pointCount) {
+    if (this.#isError && !this.points.length || !this.destinations.length || !this.offers.length) {
+      this.#renderError();
+      return;
+    }
+
+    render(this.#pointListComponent, this.#presenterContainer); // вставили обертку ul
+
+    if (!pointCount && !this.#isError) {
       this.#renderNoPoints();
     } else {
       this.#renderSort();
-      render(this.#pointListComponent, this.#presenterContainerElement); // вставили обертку ul
+
       for (let i = 0; i < this.points.length; i++) {
         this.#renderPoint({point: this.points[i]});
       }
+      this.#renderHeaderInfo();
     }
+  }
+
+  #renderHeaderInfo() {
+    this.#headerInfoComponent = new HeaderInfoView(this.points, this.destinations, this.offers);
+    render(this.#headerInfoComponent, this.#headerInfoContainer, RenderPosition.AFTERBEGIN);
   }
 
   // Отдельный приватный метод для ОЧИСТКИ списка точек
@@ -144,7 +174,12 @@ export default class PointsListPresenter {
     this.#allPointPresenters.clear();
 
     remove(this.#sortComponent);
-    remove(this.#noPointComponent);
+    remove(this.#loadingComponent);
+    remove(this.#headerInfoComponent);
+
+    if (this.#noPointComponent) {
+      remove(this.#noPointComponent);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;

@@ -4,7 +4,6 @@ import AbstractView from '../framework/view/abstract-view.js';
 
 function createPointTemplate(point, destinationsList, OffersList) {
   const {type, offers, basePrice, dateFrom, dateTo, isFavorite, destination} = point;
-  //console.log('point точки при создании', point)
 
   const dateStart = humanizePointDueDate(dateFrom, DATE_FORMAT); // например, SEP 11
   const dateFullStart = humanizePointDueDate(dateFrom, FULL_DATE_FORMAT); // например, 2019-03-18

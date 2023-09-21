@@ -5,7 +5,7 @@ import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
+  EDITING: 'EDITING'
 };
 
 export default class PointPresenter {
@@ -151,7 +151,7 @@ export default class PointPresenter {
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       point,
     );
     //this.#replaceFormToPoint(); // Зачем убрали в 8.2.3??? Я не убирала

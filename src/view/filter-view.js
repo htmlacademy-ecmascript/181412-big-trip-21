@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createFilterItemTemplate(filter, currentFilterType) {
-  const {type, hasPoints} = filter; //деструктуризация
+  const {type, hasPoints} = filter;
 
   return (
     `<div class="trip-filters__filter">
