@@ -44,7 +44,7 @@ filterPresenter.init();
 pointListPresenter.init();
 pointsModel.init()
   .finally(() => {
-    newPointButtonComponent.element.disabled = false; // Кнопка "New point" разблокирует после ответа сервера
+    newPointButtonComponent.element.disabled = pointsModel.error; // Блокировка кнопки "New point" зависит от ответа сервера
   });
 
 function handleNewTaskFormClose() {

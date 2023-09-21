@@ -6,26 +6,37 @@ export default class PointsModel extends Observable {
   #destinations = [];
   #offers = [];
   #pointsApiService = null;
+  error = false;
 
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
   }
 
+  get points() {
+    return this.#points;
+  }
+
+  get destinations() {
+    return this.#destinations;
+  }
+
+  get offers() {
+    return this.#offers;
+  }
+
   async init() {
     try {
       const points = await this.#pointsApiService.points;
       this.#points = points.map(this.#adaptToClient); // Точки адаптируем, destinations и offers не надо
-      //console.log('points', this.#points);
-
       this.#destinations = await this.#pointsApiService.destinations;
-      //console.log('destinations', this.#destinations);
       this.#offers = await this.#pointsApiService.offers;
-      //console.log('offers', this.#offers);
+      this.error = false;
     } catch (err) {
       this.#points = [];
       this.#destinations = [];
       this.#offers = [];
+      this.error = true;
     }
 
     this._notify(UpdateType.INIT);
@@ -46,21 +57,6 @@ export default class PointsModel extends Observable {
     delete adaptedPoint['is_favorite'];
 
     return adaptedPoint;
-  }
-
-  // геттер для получения points
-  get points() {
-    return this.#points;
-  }
-
-  // геттер для получения destinations
-  get destinations() {
-    return this.#destinations;
-  }
-
-  // геттер для получения offers
-  get offers() {
-    return this.#offers;
   }
 
   // Метод для ОБНОВЛЕНИЯ точки

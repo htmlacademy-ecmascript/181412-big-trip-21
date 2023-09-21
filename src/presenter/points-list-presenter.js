@@ -2,6 +2,7 @@ import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import PointListView from '../view/point-list-view.js'; // обертка ul
 import NoPointView from '../view/no-point-view.js';
 import LoadingView from '../view/loading-view.js';
+import ErrorView from '../view/error-view.js';
 import SortView from '../view/sort-view.js';
 import HeaderInfoView from '../view/header-info-view.js';
 import PointPresenter from './point-presenter.js';
@@ -21,12 +22,14 @@ export default class PointsListPresenter {
   #sortComponent = null;
   #noPointComponent = null;
   #loadingComponent = new LoadingView();
+  #errorComponent = new ErrorView();
   #headerInfoComponent = null;
   #presenterContainer = null; // DOM-элемент, куда положим весь презентер
   #headerInfoContainer = null;
   #pointsModel = null;
   #filterModel = null;
   #isLoading = true;
+  #isError = null;
 
   #allPointPresenters = new Map();
   #newPointPresenter = null;
@@ -47,6 +50,8 @@ export default class PointsListPresenter {
     this.#headerInfoContainer = headerInfoContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
+
+    this.#isError = this.#pointsModel.error;
 
     this.#newPointPresenter = new NewPointPresenter({
       pointListContainer: this.#pointListComponent.element,
@@ -122,19 +127,26 @@ export default class PointsListPresenter {
     render(this.#loadingComponent, this.#presenterContainer);
   }
 
+  #renderError() {
+    render(this.#errorComponent, this.#presenterContainer);
+  }
+
   #renderBoard() {
     const pointCount = this.points.length;
-
     if (this.#isLoading) {
       this.#renderLoading();
       return;
     }
 
-    if (!pointCount) {
+    if(this.#isError) {
+      this.#renderError();
+      return;
+    }
+
+    if (!pointCount && !this.#isError) {
       this.#renderNoPoints();
     } else {
       this.#renderSort();
-
       render(this.#pointListComponent, this.#presenterContainer); // вставили обертку ul
       for (let i = 0; i < this.points.length; i++) {
         this.#renderPoint({point: this.points[i]});
