@@ -5,7 +5,7 @@ import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
+  EDITING: 'EDITING'
 };
 
 export default class PointPresenter {

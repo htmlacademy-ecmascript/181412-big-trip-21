@@ -6,12 +6,12 @@ import {render} from './framework/render.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import PointsApiService from './point-api-service.js';
 
-const headerInfoContainerElement = document.querySelector('.trip-main'); // Header Container
+const headerInfoContainer = document.querySelector('.trip-main');
 const filterContainerElement = document.querySelector('.trip-controls__filters');
-const tripEventsContainerElement = document.querySelector('.trip-events');
+const tripEventsContainer = document.querySelector('.trip-events');
 
 
-const AUTHORIZATION = 'Basic qwertyqwertysdf';
+const AUTHORIZATION = 'Basic qwertyqwerty';
 const END_POINT = 'https://21.objects.pages.academy/big-trip';
 
 const pointsModel = new PointsModel({
@@ -24,8 +24,8 @@ const newPointButtonComponent = new NewPointButtonView({
 });
 
 const pointListPresenter = new PointsListPresenter({
-  presenterContainer: tripEventsContainerElement,
-  headerInfoContainer: headerInfoContainerElement,
+  presenterContainer: tripEventsContainer,
+  headerInfoContainer: headerInfoContainer,
   pointsModel,
   filterModel,
   onNewTaskDestroy: handleNewTaskFormClose
@@ -39,7 +39,7 @@ const filterPresenter = new FilterPresenter({
 });
 
 // Добавляем кнопку "New point", она заблокирована!!!!
-render(newPointButtonComponent, headerInfoContainerElement);
+render(newPointButtonComponent, headerInfoContainer);
 filterPresenter.init();
 pointListPresenter.init();
 pointsModel.init()

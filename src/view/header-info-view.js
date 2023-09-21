@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {DATE_FORMAT} from '../const.js';
+import {HEADER_DATE_FORMAT} from '../const.js';
 import {humanizePointDueDate} from '../utils/point.js';
 
 function createHeaderInfoTemplate(points, destinations, offers) {
@@ -7,8 +7,8 @@ function createHeaderInfoTemplate(points, destinations, offers) {
   function createTitleTemplate() {
     const pointsLength = points.length;
     const startCity = destinations.find((item) => item.id === points[0].destination);
-    const middleCity = destinations.find((item) => item.id === points[1].destination);
-    const endCity = destinations.find((item) => item.id === points.at(-1).destination);
+    const middleCity = destinations.find((item) => item.id === points[1]?.destination);
+    const endCity = destinations.find((item) => item.id === points.at(-1)?.destination);
 
     switch (pointsLength) {
       case 1:
@@ -27,8 +27,12 @@ function createHeaderInfoTemplate(points, destinations, offers) {
   function createDateTemplate() {
     const dateFrom = new Date(points[0].dateFrom);
     const dateTo = new Date(points.at(-1).dateTo);
-    const dateFromFormatted = humanizePointDueDate(points[0].dateFrom, DATE_FORMAT);
-    const dateToFormatted = humanizePointDueDate(points.at(-1).dateTo, DATE_FORMAT);
+    const dateFromFormatted = humanizePointDueDate(points[0].dateFrom, HEADER_DATE_FORMAT);
+    const dateToFormatted = humanizePointDueDate(points.at(-1).dateTo, HEADER_DATE_FORMAT);
+
+    if(points.length === 1) {
+      return `${humanizePointDueDate(points[0].dateFrom, HEADER_DATE_FORMAT)}`;
+    }
 
     if (dateFrom.getMonth() === dateTo.getMonth()) {
       return `${dateFromFormatted} — ${dateTo.getDate()}`;

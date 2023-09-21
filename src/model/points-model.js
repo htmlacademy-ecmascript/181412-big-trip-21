@@ -28,6 +28,7 @@ export default class PointsModel extends Observable {
   async init() {
     try {
       const points = await this.#pointsApiService.points;
+      // const points = [];
       this.#points = points.map(this.#adaptToClient); // Точки адаптируем, destinations и offers не надо
       this.#destinations = await this.#pointsApiService.destinations;
       this.#offers = await this.#pointsApiService.offers;
@@ -107,7 +108,7 @@ export default class PointsModel extends Observable {
     try {
       await this.#pointsApiService.deletePoint(update);
 
-      // Удаляем обновленную(удаленную!) точку
+      // Удаляем обновленную (удаленную!) точку
       this.#points = [
         ...this.#points.slice(0, index), // часть ДО обновленной точки
         ...this.#points.slice(index + 1) // часть ПОСЛЕ обноленной точки

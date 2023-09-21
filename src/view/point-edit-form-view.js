@@ -1,5 +1,5 @@
 import {humanizePointDueDate} from '../utils/point.js';
-import {TIME_FORMAT, FULL_DATE_EDIT_FORMAT} from '../const.js';
+import {TIME_DAY_FORMAT} from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import he from 'he';
@@ -19,17 +19,15 @@ const BLANK_POINT = { // Это объект с описанием точки п
 function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint) {
   const {type, offers, basePrice, dateFrom, dateTo, destination, isSaving, isDeleting, isDisabled} = point;
 
-  const dateStart = humanizePointDueDate(dateFrom, FULL_DATE_EDIT_FORMAT); // например, 19/03/19
-  const dateEnd = humanizePointDueDate(dateTo, FULL_DATE_EDIT_FORMAT); // например, 19/03/25
-  const timeStart = humanizePointDueDate(dateFrom, TIME_FORMAT); // например, 10:30
-  const timeEnd = humanizePointDueDate(dateTo, TIME_FORMAT); // например, 12:30
+  const dateStart = humanizePointDueDate(dateFrom, TIME_DAY_FORMAT);
+  const dateEnd = humanizePointDueDate(dateTo, TIME_DAY_FORMAT);
 
   // DESTINATIONS
   // Сначала получаем из массива объектов ВСЕХ destinations ТОЛЬКО ТОТ объект, что указан в точке
   const pointDestinationObj = destinationsList.find((item) => item.id === destination);
   // Функция для отрисовывания картинок
   function createDestinationPicturesTemplate() {
-    if(pointDestinationObj?.pictures.length > 0) { // Если у destination есть картинки, то отрисовываем их
+    if (pointDestinationObj?.pictures.length > 0) { // Если у destination есть картинки, то отрисовываем их
       const pictures = pointDestinationObj.pictures.map((picture) =>
         `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
       ).join('');
@@ -63,7 +61,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   const createTypeOffersTemplate = () => typeOffersObj.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
     return `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" data-id="${offer.id}" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isChecked}>
+      <input class="event__offer-checkbox  visually-hidden" data-id="${offer.id}" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isChecked} ${isSaving ? 'disabled' : ''}>
       <label class="event__offer-label" for="event-offer-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -87,12 +85,11 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   }
   const offersBlockTemplate = createOffersBlockTemplate();
 
-  //////////////////////////
   // Event type list
   function createEventTypeListItemsTemplate() {
     return OffersList.map((offer) =>
       `<div class="event__type-item">
-         <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type === type ? 'checked' : ''}>
+         <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${offer.type === type ? 'checked' : ''} ${isSaving ? 'disabled' : ''}>
          <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-1">${offer.type}</label>
        </div>`
     ).join('');
@@ -112,7 +109,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
     if (isNewPoint) {
       return `<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>Cancel</button>`;
     } else {
-      return `<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>`;
+      return `<button class="event__reset-btn" type="reset" ${isSaving ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>`;
     }
   }
   const resetBtnTemplate = createResetBtnTemplate();
@@ -125,7 +122,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" ${isSaving ? 'disabled' : ''} ${isDeleting ? 'disabled' : ''} id="event-type-toggle-1" type="checkbox">
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -139,7 +136,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(pointDestinationObj ? pointDestinationObj.name : '')}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" ${isSaving ? 'disabled' : ''} ${isDeleting ? 'disabled' : ''} value="${he.encode(pointDestinationObj ? pointDestinationObj.name : '')}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${DestinationListItemsTemplate}
                     </datalist>
@@ -147,10 +144,10 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart} ${timeStart}" required>
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart}" required ${isSaving ? 'disabled' : ''}>
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd} ${timeEnd}" required>
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd}" required ${isSaving ? 'disabled' : ''}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -158,7 +155,7 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                       <span class="visually-hidden">Price</span>
                       €
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" ${isSaving ? 'disabled' : ''}>
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
@@ -305,34 +302,34 @@ export default class PointEditFormView extends AbstractStatefulView {
     evt.preventDefault();
     const checkedOffers = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
     const updatedCheckedOffers = [];
-    checkedOffers.map((element) => updatedCheckedOffers.push(element.dataset.id, 10));
+    checkedOffers.map((element) => updatedCheckedOffers.push(element.dataset.id));
     this._setState({
       offers: updatedCheckedOffers,
     });
   };
 
   #dateFromChangeHandler = ([userDate]) => {
-    this.updateElement({
+    this._setState({
       dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this._setState({
+      dateTo: userDate,
     });
   };
 
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
-    this.updateElement({
+    this._setState({
       basePrice: parseInt((evt.target.value),10),
-    });
-  };
-
-  #dateToChangeHandler = ([userDate]) => {
-    this.updateElement({
-      dateTo: userDate,
     });
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(PointEditFormView.parseStateToPoint(this._state)); // Сворачиваем форму в точку уже с !новыми! данными Состояния!
+    this.#handleFormSubmit(PointEditFormView.parseStateToPoint(this._state)); //
   };
 
   #collapseClickHandler = (evt) => {

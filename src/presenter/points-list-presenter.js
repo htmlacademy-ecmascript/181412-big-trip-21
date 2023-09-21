@@ -102,6 +102,10 @@ export default class PointsListPresenter {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init(this.destinations, this.offers);
+
+    // if(this.#noPointComponent !== null) {
+    //   remove(this.#noPointComponent);
+    // }
   }
 
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ
@@ -133,21 +137,24 @@ export default class PointsListPresenter {
 
   #renderBoard() {
     const pointCount = this.points.length;
+
     if (this.#isLoading) {
       this.#renderLoading();
       return;
     }
 
-    if(this.#isError) {
+    if (this.#isError && !this.points.length || !this.destinations.length || !this.offers.length) {
       this.#renderError();
       return;
     }
+
+    render(this.#pointListComponent, this.#presenterContainer); // вставили обертку ul
 
     if (!pointCount && !this.#isError) {
       this.#renderNoPoints();
     } else {
       this.#renderSort();
-      render(this.#pointListComponent, this.#presenterContainer); // вставили обертку ul
+
       for (let i = 0; i < this.points.length; i++) {
         this.#renderPoint({point: this.points[i]});
       }
@@ -167,8 +174,12 @@ export default class PointsListPresenter {
     this.#allPointPresenters.clear();
 
     remove(this.#sortComponent);
-    remove(this.#noPointComponent);
+    remove(this.#loadingComponent);
     remove(this.#headerInfoComponent);
+
+    if (this.#noPointComponent) {
+      remove(this.#noPointComponent);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
