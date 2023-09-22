@@ -74,8 +74,6 @@ export default class PointView extends AbstractView {
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  // При создании экземляра класса Точки мы должны передать объект с данными точки,
-  // а также массивы destinations и offers
   constructor({point, destinations, offers, onEditClick, onFavoriteClick}) {
     super();
     this.#point = point;
@@ -88,8 +86,8 @@ export default class PointView extends AbstractView {
     this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   }
 
-  get template() { // Получем шаблон элемента (кусок HTML-разметки)
-    return createPointTemplate(this.#point, this.#destinations, this.#offers); // Для отрисовки используем пришедшие данные объекта
+  get template() {
+    return createPointTemplate(this.#point, this.#destinations, this.#offers);
   }
 
   #editClickHandler = (evt) => {

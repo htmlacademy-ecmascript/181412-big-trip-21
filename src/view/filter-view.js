@@ -19,7 +19,7 @@ function createFilterItemTemplate(filter, currentFilterType) {
 
 function createFilterTemplate(filterItems, currentFilterType) {
   const filterItemsTemplate = filterItems
-    .map((filter) => createFilterItemTemplate(filter, currentFilterType)) //передаем INDEX, index 0 вернет false (и тогда первый эл-т станет checked), остальные true
+    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
     .join('');
 
   return (

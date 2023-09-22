@@ -38,13 +38,12 @@ const filterPresenter = new FilterPresenter({
   pointsModel
 });
 
-// Добавляем кнопку "New point", она заблокирована!!!!
 render(newPointButtonComponent, headerInfoContainer);
 filterPresenter.init();
 pointListPresenter.init();
 pointsModel.init()
   .finally(() => {
-    newPointButtonComponent.element.disabled = pointsModel.error; // Блокировка кнопки "New point" зависит от ответа сервера
+    newPointButtonComponent.element.disabled = pointsModel.error;
   });
 
 function handleNewTaskFormClose() {

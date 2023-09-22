@@ -42,9 +42,6 @@ export default class PointsListPresenter {
   #currentSortType = SortType.DAY; // дефолтное состояние сортировки
   #filterType = FilterType.EVERYTHING;
 
-  // При создании экземпляра класса презентера передаем ОБЪЕКТ с указанием:
-  //  - контейнера (DOM-элемента!), куда положим САМ ПРЕЗЕНТЕР!
-  //  - модели с данными
   constructor({presenterContainer, headerInfoContainer, pointsModel, filterModel, onNewTaskDestroy}) {
     this.#presenterContainer = presenterContainer; // это DOM-элемент, и это контейнер для ВСЕГО списка, а не для точек
     this.#headerInfoContainer = headerInfoContainer;
@@ -103,9 +100,9 @@ export default class PointsListPresenter {
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init(this.destinations, this.offers);
 
-    // if(this.#noPointComponent !== null) {
-    //   remove(this.#noPointComponent);
-    // }
+    if(this.#noPointComponent !== null) {
+      remove(this.#noPointComponent);
+    }
   }
 
   // Отдельный приватный метод для отрисовки СОРТИРОВКИ

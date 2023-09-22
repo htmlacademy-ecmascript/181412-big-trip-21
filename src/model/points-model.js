@@ -6,7 +6,7 @@ export default class PointsModel extends Observable {
   #destinations = [];
   #offers = [];
   #pointsApiService = null;
-  error = false;
+  #error = false;
 
   constructor({pointsApiService}) {
     super();
@@ -25,19 +25,22 @@ export default class PointsModel extends Observable {
     return this.#offers;
   }
 
+  get error() {
+    return this.#error;
+  }
+
   async init() {
     try {
       const points = await this.#pointsApiService.points;
-      // const points = [];
       this.#points = points.map(this.#adaptToClient); // Точки адаптируем, destinations и offers не надо
       this.#destinations = await this.#pointsApiService.destinations;
       this.#offers = await this.#pointsApiService.offers;
-      this.error = false;
+      this.#error = false;
     } catch (err) {
       this.#points = [];
       this.#destinations = [];
       this.#offers = [];
-      this.error = true;
+      this.#error = true;
     }
 
     this._notify(UpdateType.INIT);
