@@ -66,8 +66,8 @@ export default class PointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#pointComponent, prevPointEditFormComponent); // Сомнения!!! 8.2.3
-      this.#mode = Mode.DEFAULT; // Сомнения!!! 8.2.3
+      replace(this.#pointComponent, prevPointEditFormComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -154,7 +154,6 @@ export default class PointPresenter {
       UpdateType.MINOR,
       point,
     );
-    //this.#replaceFormToPoint(); // Зачем убрали в 8.2.3??? Я не убирала
   };
 
   #handleDeleteClick = (point) => {
@@ -166,9 +165,6 @@ export default class PointPresenter {
   };
 
   #handleFormCollapse = () => {
-    // При сворачивании формы в точку данные !не сохраняем
-    // this.#pointEditFormComponent.reset(this.#point);
-    // this.#replaceFormToPoint();
     this.resetView();
   };
 

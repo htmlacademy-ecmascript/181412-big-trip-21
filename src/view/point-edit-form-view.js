@@ -180,8 +180,6 @@ export default class PointEditFormView extends AbstractStatefulView {
   #datepickerTo = null;
   #isNewPoint = null;
 
-  // При создании экземляра класса Формы мы должны передать объект с данными точки,
-  // а также массивы destinations и offers
   constructor({point = BLANK_POINT, destinations, offers, isNewPoint, onFormSubmit, onCollapseClick, onDeleteClick}) {
     super();
     // просто глубоко копируем пришедший объект с данными точки, обращаться this._state
@@ -213,7 +211,7 @@ export default class PointEditFormView extends AbstractStatefulView {
     this.#setDatepicker();
   }
 
-  get template() { // Получем ШАБЛОН элемента (кусок HTML-разметки)
+  get template() {
     return createEditFormTemplate(this._state, this.#destinations, this.#offers, this.#isNewPoint);
   }
 
@@ -282,6 +280,12 @@ export default class PointEditFormView extends AbstractStatefulView {
     return point;
   }
 
+  reset(point) {
+    this.updateElement(
+      PointEditFormView.parsePointToState(point)
+    );
+  }
+
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
     const selectedDestination = this.#destinations.find((item) => item.name === evt.target.value);
@@ -341,10 +345,4 @@ export default class PointEditFormView extends AbstractStatefulView {
     evt.preventDefault();
     this.#handleDeleteClick(PointEditFormView.parseStateToPoint(this._state));
   };
-
-  reset(point) {
-    this.updateElement(
-      PointEditFormView.parsePointToState(point)
-    );
-  }
 }

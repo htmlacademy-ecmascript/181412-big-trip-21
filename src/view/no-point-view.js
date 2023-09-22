@@ -22,7 +22,7 @@ export default class NoPointView extends AbstractView {
     this.#filterType = filterType;
   }
 
-  get template() { // Получем шаблон элемента (кусок HTML-разметки)
+  get template() {
     return createNoPointTemplate(this.#filterType);
   }
 

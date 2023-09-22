@@ -9,7 +9,7 @@ export default class ErrorView extends AbstractView {
     super();
   }
 
-  get template() { // Получем шаблон элемента (кусок HTML-разметки)
+  get template() {
     return createErrorTemplate();
   }
 

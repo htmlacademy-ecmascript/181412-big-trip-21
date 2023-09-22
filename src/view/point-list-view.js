@@ -5,7 +5,7 @@ function createPointListTemplate() {
 }
 
 export default class PointListView extends AbstractView{
-  get template() { // Получем шаблон элемента (кусок HTML-разметки)
+  get template() {
     return createPointListTemplate();
   }
 }
