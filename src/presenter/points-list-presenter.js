@@ -160,7 +160,7 @@ export default class PointsListPresenter {
   }
 
   #renderHeaderInfo() {
-    this.#headerInfoComponent = new HeaderInfoView(this.points, this.destinations, this.offers);
+    this.#headerInfoComponent = new HeaderInfoView(this.#pointsModel.points, this.destinations, this.offers);
     render(this.#headerInfoComponent, this.#headerInfoContainer, RenderPosition.AFTERBEGIN);
   }
 
