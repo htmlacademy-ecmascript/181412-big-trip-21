@@ -27,7 +27,8 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
   const pointDestinationObj = destinationsList.find((item) => item.id === destination);
   // Функция для отрисовывания картинок
   function createDestinationPicturesTemplate() {
-    if (pointDestinationObj?.pictures.length > 0) { // Если у destination есть картинки, то отрисовываем их
+    if (pointDestinationObj?.pictures.length > 0) {
+      // Если у destination есть картинки, то отрисовываем их
       const pictures = pointDestinationObj.pictures.map((picture) =>
         `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`
       ).join('');
@@ -35,8 +36,6 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
       return `<div class="event__photos-container">
                 <div class="event__photos-tape">${pictures}</div>
               </div>`;
-    } else {
-      return '';
     }
   }
   const destinationPicturesTemplate = createDestinationPicturesTemplate();
@@ -46,10 +45,8 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
       return `<section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
               <p class="event__destination-description">${pointDestinationObj?.description}</p>
-              ${destinationPicturesTemplate}
+              ${destinationPicturesTemplate ? destinationPicturesTemplate : ''}
             </section>`;
-    } else {
-      return '';
     }
   }
   const destinationsBlockTemplate = createDestinationsBlockTemplate();
@@ -79,8 +76,6 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                 ${typeOffersTemplate}
               </div>
             </section>`;
-    } else {
-      return '';
     }
   }
   const offersBlockTemplate = createOffersBlockTemplate();
@@ -163,8 +158,8 @@ function createEditFormTemplate(point, destinationsList, OffersList, isNewPoint)
                   ${isNewPoint ? '' : '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>'}
                 </header>
                 <section class="event__details">
-                ${offersBlockTemplate}
-                ${destinationsBlockTemplate}
+                ${offersBlockTemplate ? offersBlockTemplate : ''}
+                ${destinationsBlockTemplate ? destinationsBlockTemplate : ''}
                 </section>
               </form>
             </li>`;
